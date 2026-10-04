@@ -634,8 +634,8 @@ h1, h2, h3 { text-wrap: balance; }
 }
 .social__grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: clamp(2.5rem, 6vw, 6rem);
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: clamp(1.5rem, 3vw, 3rem);
   align-items: center;
 }
 .social__text h2 { max-width: 19ch; }
@@ -694,19 +694,22 @@ h1, h2, h3 { text-wrap: balance; }
   position: relative;
   display: grid;
   place-items: center;
-  padding-block: 1rem;
+  /* miejsce na sześciokąt nad telefonem i po bokach */
+  padding: 3rem 60px 1rem;
 }
+/* 500 px ekranu to maksymalna szerokość, w jakiej Facebook rysuje wtyczkę strony */
 .phone-wrap {
+  --phone-w: 524px;
   position: relative;
-  width: min(360px, 100%);
+  width: var(--phone-w);
+  max-width: 100%;
 }
 /* sześciokąt z logo jako tło za górą telefonu */
 .social__hex {
   position: absolute;
-  left: 50%;
-  top: 31%;
-  width: 165%;
-  transform: translate(-50%, -50%);
+  left: -58px;
+  top: -38px;
+  width: calc(100% + 116px);
   color: var(--orange);
   pointer-events: none;
 }
@@ -714,8 +717,8 @@ h1, h2, h3 { text-wrap: balance; }
 .float-card {
   position: absolute;
   z-index: 2;
-  left: -22%;
-  bottom: 13%;
+  left: -48px;
+  bottom: 11%;
   display: flex;
   align-items: center;
   gap: .8rem;
@@ -747,9 +750,10 @@ h1, h2, h3 { text-wrap: balance; }
   position: relative;
   z-index: 1;
   width: 100%;
-  aspect-ratio: 9 / 18.4;
-  padding: 11px;
-  border-radius: 54px;
+  height: clamp(760px, calc(100vh - 3rem), 940px);
+  height: clamp(760px, calc(100svh - 3rem), 940px);
+  padding: 12px;
+  border-radius: 62px;
   background: linear-gradient(150deg, #3D3935 0%, #1F1D1B 60%, #2B2825 100%);
   box-shadow:
     inset 0 0 0 1.5px rgba(255, 255, 255, .09),
@@ -770,20 +774,20 @@ h1, h2, h3 { text-wrap: balance; }
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  border-radius: 43px;
+  border-radius: 50px;
   background: #fff;
   isolation: isolate;
 }
 .phone__bar {
   flex: none;
-  height: 40px;
+  height: 44px;
   display: grid;
   place-items: center;
   background: #fff;
 }
 .phone__island {
-  width: 92px;
-  height: 25px;
+  width: 104px;
+  height: 28px;
   border-radius: 13px;
   background: #0F0E0D;
 }
@@ -818,7 +822,7 @@ h1, h2, h3 { text-wrap: balance; }
   border-radius: 6px;
   animation: pulse 1.6s ease-in-out infinite;
 }
-.sk--cover { height: 34%; max-height: 150px; min-height: 110px; border-radius: 0; }
+.sk--cover { aspect-ratio: 2.7 / 1; border-radius: 0; }
 .sk--avatar {
   width: 66px;
   height: 66px;
@@ -839,12 +843,12 @@ h1, h2, h3 { text-wrap: balance; }
   overflow-y: auto;
   background: #EFEDEA;
   scrollbar-width: none;
-  font-size: .95rem;
+  font-size: 1rem;
 }
 .fbfeed::-webkit-scrollbar { display: none; }
 .fbfeed__head { background: #fff; padding-bottom: 14px; margin-bottom: 8px; }
 .fbfeed__cover {
-  height: 130px;
+  aspect-ratio: 2.7 / 1;
   background: var(--stone-2) center / cover no-repeat;
 }
 .fbfeed__avatar {
@@ -898,7 +902,7 @@ h1, h2, h3 { text-wrap: balance; }
 .fbpost__head time { font-size: .8rem; color: var(--muted); }
 .fbpost__text {
   padding: 8px 14px 10px;
-  font-size: .92rem;
+  font-size: .98rem;
   line-height: 1.45;
   white-space: pre-line;
   overflow-wrap: anywhere;
@@ -1261,6 +1265,12 @@ a.fbpost__media { cursor: pointer; }
 }
 
 /* ---------- Responsive ---------- */
+@media (max-width: 1180px) {
+  .social__grid { grid-template-columns: 1fr; }
+  .social__text h2 { max-width: 18ch; }
+  .social__stage { padding-top: 3.5rem; }
+}
+
 @media (max-width: 980px) {
   .hero__grid { grid-template-columns: 1fr; }
   .hero__title { max-width: 16ch; }
@@ -1288,9 +1298,6 @@ a.fbpost__media { cursor: pointer; }
   .steps li:nth-child(3) { padding-left: 0; border-left: 0; }
 
   .contact__grid { grid-template-columns: 1fr; }
-  .social__grid { grid-template-columns: 1fr; }
-  .social__text h2 { max-width: 18ch; }
-  .social__stage { padding-block: 2.5rem 1rem; }
   .gallery { grid-template-columns: repeat(3, 1fr); }
   .gallery li.g-right { grid-column: span 2; }
 }
@@ -1333,12 +1340,19 @@ a.fbpost__media { cursor: pointer; }
 
 @media (max-width: 640px) {
   body { font-size: 1rem; }
-  .phone-wrap { width: min(318px, 86%); }
-  .phone { border-radius: 50px; }
+  .social__stage { padding: 2.25rem 0 3.25rem; }
+  .phone-wrap { width: 100%; }
+  .phone {
+    height: clamp(560px, calc(100vh - 8rem), 780px);
+    height: clamp(560px, calc(100svh - 8rem), 780px);
+    padding: 10px;
+    border-radius: 50px;
+  }
   .phone__screen { border-radius: 40px; }
-  .social__hex { width: 122%; top: 23%; }
+  .phone__bar { height: 38px; }
+  .phone__island { width: 90px; height: 25px; }
+  .social__hex { left: -14px; top: -24px; width: calc(100% + 28px); }
   .float-card { left: 50%; bottom: -30px; translate: -50% 0; padding: .65rem .9rem .65rem .75rem; white-space: nowrap; }
-  .social__stage { padding-bottom: 3rem; }
   .float-card__score { font-size: 1.8rem; }
   .profile { grid-template-columns: auto minmax(0, 1fr); }
   .profile__follow { grid-column: 1 / -1; }
