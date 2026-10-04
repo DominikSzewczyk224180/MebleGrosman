@@ -19,6 +19,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600&family=Zilla+Slab:wght@500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
+  <script>document.documentElement.classList.add("js");</script>
 
   <script type="application/ld+json">
   {
@@ -193,17 +194,47 @@
           <li data-cat="szafy"><button><img src="img/przedpokoj-konsola.webp" alt="Przedpokój z dębową ścianą i konsolą" loading="lazy" width="414" height="414"></button></li>
           <li data-cat="kuchnie"><button><img src="img/kuchnia-dab-polysk-2.webp" alt="Kuchnia z dębem i wysoką zabudową w połysku" loading="lazy" width="414" height="414"></button></li>
         </ul>
+      </div>
+    </section>
 
-        <div class="fb">
-          <div class="fb__text">
-            <h3>Nowe realizacje pokazujemy na Facebooku</h3>
-            <p>Na bieżąco wrzucamy zdjęcia mebli, które właśnie zamontowaliśmy.</p>
+    <!-- FACEBOOK: posty pobierane przez Graph API (GitHub Action -> data/facebook.json) -->
+    <section class="feed" id="facebook" aria-labelledby="feedTitle">
+      <div class="wrap feed__head">
+        <div class="feed__intro">
+          <h2 id="feedTitle">Najnowsze realizacje</h2>
+          <p>Prosto z naszego Facebooka, gdzie na bieżąco pokazujemy zamontowane meble.</p>
+        </div>
+        <div class="feed__controls">
+          <div class="feed__arrows" id="feedArrows" hidden>
+            <button class="arrow" id="feedPrev" type="button" aria-label="Poprzednie posty" aria-controls="feedRail">
+              <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M15 5l-7 7 7 7" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <button class="arrow" id="feedNext" type="button" aria-label="Następne posty" aria-controls="feedRail">
+              <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
           </div>
-          <div class="fb__actions">
-            <a class="btn btn--dark" href="https://www.facebook.com/meblegrosman" target="_blank" rel="noopener">Otwórz nasz profil</a>
-            <button class="btn btn--ghost" id="fbLoad" type="button">Pokaż ostatnie posty</button>
+          <a class="btn btn--ghost" href="https://www.facebook.com/meblegrosman" target="_blank" rel="noopener">Obserwuj na Facebooku</a>
+        </div>
+      </div>
+
+      <ul class="feed__rail" id="feedRail" aria-label="Posty z Facebooka" aria-busy="true">
+        <li class="post post--skeleton" aria-hidden="true"><span></span><i></i><i></i></li>
+        <li class="post post--skeleton" aria-hidden="true"><span></span><i></i><i></i></li>
+        <li class="post post--skeleton" aria-hidden="true"><span></span><i></i><i></i></li>
+        <li class="post post--skeleton" aria-hidden="true"><span></span><i></i><i></i></li>
+      </ul>
+
+      <div class="wrap">
+        <div class="feed__fallback" id="feedFallback">
+          <div class="consent" id="fbEmbed">
+            <div class="consent__inner">
+              <div>
+                <h3>Zobacz nasze posty bez wychodzenia ze strony</h3>
+                <p>Po kliknięciu wczytamy okno Facebooka z naszymi ostatnimi wpisami. Facebook może wtedy zapisać na Twoim urządzeniu swoje pliki cookie.</p>
+              </div>
+              <button class="btn btn--dark" id="fbLoad" type="button">Pokaż posty z Facebooka</button>
+            </div>
           </div>
-          <div class="fb__embed" id="fbEmbed" hidden></div>
         </div>
       </div>
     </section>
@@ -305,7 +336,11 @@
     </button>
     <figure>
       <img id="lbImg" src="" alt="">
-      <figcaption id="lbCap"></figcaption>
+      <figcaption>
+        <span class="lightbox__count" id="lbCount"></span>
+        <span class="lightbox__text" id="lbCap"></span>
+        <a class="lightbox__link" id="lbLink" href="#" target="_blank" rel="noopener" hidden>Zobacz post na Facebooku</a>
+      </figcaption>
     </figure>
     <button class="lightbox__nav lightbox__nav--next" id="lbNext" aria-label="Następne zdjęcie">
       <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
