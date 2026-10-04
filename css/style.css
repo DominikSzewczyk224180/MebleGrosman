@@ -274,185 +274,151 @@ h1, h2, h3 { text-wrap: balance; }
   background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 92 17'%3E%3Cg fill='%23FF914D'%3E%3Cpath id='s' d='M8.5 0l2.6 5.4 5.9.8-4.3 4.1 1 5.8-5.2-2.8-5.2 2.8 1-5.8L0 6.2l5.9-.8z'/%3E%3Cuse href='%23s' x='18.75'/%3E%3Cuse href='%23s' x='37.5'/%3E%3Cuse href='%23s' x='56.25'/%3E%3Cuse href='%23s' x='75'/%3E%3C/g%3E%3C/svg%3E") no-repeat left / 92px 17px;
 }
 
-/* Szafka: dwa fronty otwierają się w 3D i odsłaniają realizację */
+/* Rysunek kuchni: kreski projektu, wymiary, montaż frontów, światło LED */
 .hero__visual {
   margin: 0;
-  justify-self: center;
   width: 100%;
-  max-width: 560px;
-  display: grid;
-  justify-items: center;
+  max-width: 620px;
+  justify-self: end;
 }
-
-.cabinet {
-  --w: min(400px, 70vw);
-  --open: 104deg;
-  position: relative;
-  width: var(--w);
-  aspect-ratio: 1 / 1;
-  margin-block: 1.25rem 2.25rem;
-  perspective: 2200px;
-  transform-style: preserve-3d;
-}
-
-/* korpus z dębu, cofnięty za fronty */
-.cabinet__body {
-  position: absolute;
-  inset: 0;
-  padding: clamp(8px, 2.6%, 12px);
-  border-radius: 3px;
-  background:
-    linear-gradient(90deg, rgba(255, 255, 255, .10), rgba(0, 0, 0, .06) 50%, rgba(255, 255, 255, .08)),
-    linear-gradient(180deg, #C58F5A, #A9733F);
-  transform: translateZ(-18px);
-  box-shadow:
-    0 2px 0 rgba(0, 0, 0, .05),
-    0 46px 60px -38px rgba(36, 34, 31, .55);
-}
-.cabinet__inside {
-  position: relative;
+.kitchen {
+  --front: #D8CEC1;
+  --handle: #1F1D1B;
+  display: block;
   width: 100%;
-  height: 100%;
-  overflow: hidden;
-  border-radius: 1px;
-  background: var(--graphite);
-}
-.cabinet__inside img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-/* głębia wnętrza: cień pod wieńcem i przy bokach */
-.cabinet__inside::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  box-shadow:
-    inset 0 16px 18px -12px rgba(0, 0, 0, .5),
-    inset 12px 0 16px -12px rgba(0, 0, 0, .35),
-    inset -12px 0 16px -12px rgba(0, 0, 0, .35);
+  height: auto;
+  overflow: visible;
 }
 
-.door {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: calc(50% - 1px);
-  transform-style: preserve-3d;
-}
-.door--left { left: 0; transform-origin: left center; transform: rotateY(calc(var(--open) * -1)); }
-.door--right { right: 0; transform-origin: right center; transform: rotateY(var(--open)); }
+/* siatka projektu: jest na starcie, znika po montażu */
+.k-grid { opacity: 0; animation: k-grid 3.9s ease forwards; }
+@keyframes k-grid { 8% { opacity: 1; } 72% { opacity: 1; } 100% { opacity: 0; } }
+.k-floor { opacity: 0; animation: k-fade .8s ease 2.1s forwards; }
 
-.door__face {
-  position: absolute;
-  inset: 0;
-  border-radius: 2px;
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
+/* kreski rysowane od lewej, potem zostają jako delikatne fugi między frontami */
+.k-line {
+  stroke: #3A3733;
+  stroke-width: 1.15;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: k-draw .9s cubic-bezier(.55, 0, .25, 1) forwards;
+  animation-delay: var(--d, 0s);
 }
-.door__face--front {
-  background: linear-gradient(180deg, #E4DED5 0%, #D6CEC2 100%);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .35), inset 0 -1px 0 rgba(0, 0, 0, .06);
-}
-/* front ciemnieje, kiedy obraca się od światła */
-.door__face--front::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: rgba(36, 34, 31, .3);
-  opacity: 1;
-}
-.door__face--back {
-  transform: rotateY(180deg);
-  background: linear-gradient(90deg, #D9D2C7, #C7BEB1);
-}
-.door--right .door__face--back { background: linear-gradient(270deg, #D9D2C7, #C7BEB1); }
+@keyframes k-draw { to { stroke-dashoffset: 0; } }
+.k-blueprint { animation: k-settle .9s ease 3.1s forwards; }
+@keyframes k-settle { to { opacity: .38; } }
 
-.door__handle {
-  position: absolute;
-  top: 29%;
-  height: 42%;
-  width: 6px;
-  border-radius: 3px;
-  background: linear-gradient(90deg, #34312D, #161513);
-  box-shadow: 2px 3px 5px rgba(0, 0, 0, .22);
+.k-gaps { opacity: 0; transition: opacity .8s ease; }
+.k-gaps path { stroke: #fff; stroke-width: 1.2; }
+.kitchen[data-tone="dark"] .k-gaps { opacity: .2; }
+
+/* wymiary w kolorze marki */
+.k-dim { stroke: var(--orange); stroke-width: 1.25; }
+.k-label {
+  fill: var(--orange-ink);
+  font: 600 13px var(--f-body);
+  letter-spacing: .04em;
+  opacity: 0;
+  animation: k-fade .5s ease 1.1s forwards;
 }
-.door--left .door__handle { right: 7%; }
-.door--right .door__handle { left: 7%; }
+.k-dims { animation: k-dims-settle .9s ease 3.4s forwards; }
+@keyframes k-dims-settle { to { opacity: .8; } }
 
-/* puszki zawiasów po wewnętrznej stronie frontu */
-.door__hinge {
-  position: absolute;
-  width: 9%;
-  aspect-ratio: 1;
-  border-radius: 50%;
-  background: radial-gradient(circle, #A79F93 0 42%, #8E867A 43% 58%, #BDB5A9 59%);
+/* materiały */
+.k-wipe {
+  transform-box: fill-box;
+  transform-origin: 0 50%;
+  transform: scaleX(0);
+  animation: k-wipe .95s cubic-bezier(.6, 0, .2, 1) forwards;
+  animation-delay: var(--d, 0s);
 }
-.door__hinge:first-child { top: 11%; }
-.door__hinge:last-child { bottom: 11%; }
-.door--left .door__hinge { right: 7%; }
-.door--right .door__hinge { left: 7%; }
+@keyframes k-wipe { to { transform: scaleX(1); } }
 
-/* grubość płyty widoczna na krawędzi otwartego frontu */
-.door__edge {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 9px;
-  background: linear-gradient(90deg, #C3BBAE, #D2CABE);
+.k-front {
+  fill: var(--front);
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: k-mount .65s cubic-bezier(.2, .8, .2, 1) forwards;
+  animation-delay: calc(1.55s + var(--i) * 50ms);
+  transition: fill .8s ease calc(var(--i) * 45ms);
 }
-.door--left .door__edge { left: 100%; transform-origin: left center; transform: rotateY(90deg); }
-.door--right .door__edge { right: 100%; transform-origin: right center; transform: rotateY(-90deg); }
+@keyframes k-mount {
+  from { opacity: 0; transform: translateY(7px); }
+  to { opacity: 1; transform: none; }
+}
+.k-handle {
+  fill: var(--handle);
+  opacity: 0;
+  animation: k-fade .45s ease forwards;
+  animation-delay: calc(2.2s + var(--i) * 35ms);
+  transition: fill .8s ease calc(var(--i) * 45ms);
+}
+.k-sheen { opacity: 0; animation: k-fade .8s ease 2.2s forwards; }
+.k-fade { opacity: 0; animation: k-fade .6s ease forwards; animation-delay: var(--d, 0s); }
+.k-rise {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: k-mount .6s cubic-bezier(.2, .8, .2, 1) forwards;
+  animation-delay: var(--d, 0s);
+}
+@keyframes k-fade { to { opacity: 1; } }
 
-/* Stan zamknięty (tylko z JS, bez JS szafka jest od razu otwarta) */
-.js .cabinet:not(.is-open) .door { transform: none; }
-.js .cabinet:not(.is-open) .door__face--front::after { opacity: 0; }
-.js .cabinet:not(.is-open) .cabinet__inside img { filter: brightness(.42) saturate(.8); }
+/* LED pod szafkami zapala się z krótkim mrugnięciem */
+.k-led { opacity: 0; animation: k-led 1s linear 2.95s forwards; }
+@keyframes k-led {
+  0% { opacity: 0; }
+  18% { opacity: .85; }
+  28% { opacity: .15; }
+  42%, 100% { opacity: 1; }
+}
 
-/* zamykanie: długi, miękki koniec jak w cichym domyku */
-.js .cabinet .door { transition: transform 1.15s cubic-bezier(.32, 0, .1, 1); }
-.js .cabinet .door--right { transition-delay: .05s; }
-.js .cabinet .door__face--front::after { transition: opacity 1.1s ease; }
-.js .cabinet .cabinet__inside img { transition: filter .35s ease .7s; }
-/* otwieranie: płynny rozbieg, potem światło we wnętrzu */
-.js .cabinet.is-open .door { transition: transform 1.45s cubic-bezier(.6, .02, .2, 1); }
-.js .cabinet.is-open .door--right { transition-delay: .09s; }
-.js .cabinet.is-open .cabinet__inside img { transition: filter .9s ease .3s; }
-
-.hero__caption {
+/* wybór koloru frontów */
+.kitchen-ui {
   display: flex;
-  justify-content: space-between;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 1rem;
-  margin-top: 1rem;
-  font-size: .95rem;
+  justify-content: space-between;
+  gap: .75rem 1rem;
+  margin-top: 1.1rem;
+  padding-inline: 6%;
+  min-height: 46px;
+  font-size: .97rem;
   color: var(--muted);
-  min-height: 28px;
+  opacity: 0;
+  animation: k-fade .6s ease 3.3s forwards;
 }
-.hero__dots { display: flex; gap: .35rem; }
-.hero__dots button {
-  width: 28px;
-  height: 28px;
-  border: 0;
+.kitchen-ui strong {
+  display: inline-block;
+  min-width: 5.9em;   /* stała szerokość: zmiana nazwy koloru nie przesuwa próbek */
+  color: var(--graphite);
+  font-weight: 600;
+}
+.swatches { display: flex; gap: .45rem; }
+.swatch {
+  width: 38px;
+  height: 38px;
   padding: 0;
-  background: transparent;
+  border: 0;
+  border-radius: 50%;
+  background: var(--c);
   cursor: pointer;
-  position: relative;
+  box-shadow:
+    inset 0 0 0 1px rgba(36, 34, 31, .2),
+    0 0 0 3px var(--paper),
+    0 0 0 4.5px transparent;
+  transition: box-shadow .25s ease, transform .2s ease;
 }
-.hero__dots button::after {
-  content: "";
-  position: absolute;
-  left: 4px;
-  right: 4px;
-  top: 12px;
-  height: 4px;
-  border-radius: 2px;
-  background: var(--stone-2);
-  transition: background-color .3s;
+.swatch:hover { transform: scale(1.08); }
+.swatch[aria-pressed="true"] {
+  box-shadow:
+    inset 0 0 0 1px rgba(36, 34, 31, .2),
+    0 0 0 3px var(--paper),
+    0 0 0 5px var(--graphite);
 }
-.hero__dots button[aria-current="true"]::after { background: var(--orange); }
 
 /* ---------- Section heads ---------- */
 .section-head {
@@ -601,6 +567,13 @@ h1, h2, h3 { text-wrap: balance; }
 .gallery li.g-right { grid-column: 3 / span 2; }
 .gallery.is-filtered li.g-wide { grid-column: auto; grid-row: auto; }
 .gallery li[hidden] { display: none; }
+.gallery:not(.is-expanded):not(.is-filtered) li[data-more] { display: none; }
+.gallery__more {
+  display: flex;
+  justify-content: center;
+  margin-top: clamp(1.75rem, 3vw, 2.5rem);
+}
+.gallery__more[hidden] { display: none; }
 .gallery button {
   display: block;
   width: 100%;
@@ -1273,6 +1246,7 @@ a.fbpost__media { cursor: pointer; }
 
 @media (max-width: 980px) {
   .hero__grid { grid-template-columns: 1fr; }
+  .hero__visual { justify-self: center; }
   .hero__title { max-width: 16ch; }
 
   .offer__grid { grid-template-columns: 1fr; }
@@ -1340,6 +1314,7 @@ a.fbpost__media { cursor: pointer; }
 
 @media (max-width: 640px) {
   body { font-size: 1rem; }
+  .k-label { font-size: 19px; }
   .social__stage { padding: 2.25rem 0 3.25rem; }
   .phone-wrap { width: 100%; }
   .phone {

@@ -10,7 +10,7 @@ Statyczna strona (HTML, CSS, JS) na GitHub Pages, z automatycznym feedem postów
 ## Struktura
 - `index.html`: treść strony
 - `css/style.css`: wygląd (kolory i fonty w zmiennych na górze pliku)
-- `js/main.js`: szafka w hero, oferta, galeria z lightboxem, Facebook w telefonie, godziny otwarcia
+- `js/main.js`: kolory frontów w hero, oferta, galeria z lightboxem, Facebook w telefonie, godziny otwarcia
 - `img/`: zdjęcia i logo, `img/fb/`: zdjęcia z postów (zapisuje je automat)
 - `data/facebook.json`: posty z Facebooka (zapisuje je automat)
 - `scripts/fetch_facebook.py` i `.github/workflows/facebook.yml`: automat pobierający posty
@@ -57,4 +57,9 @@ Strona sama wybiera wersję: są posty w `data/facebook.json`, to własny feed, 
 
 ## Podmiana zdjęć
 Zdjęcia w `img/` mają 414x414 px. Najlepiej podmienić je na oryginały (min. 1200 px) pod tymi samymi nazwami.
-Realizacje pokazywane w szafce w hero ustawia się w `js/main.js` (tablica `slides`).
+Kolejność w galerii zmienia się w `index.html`: pierwsze 15 zdjęć widać od razu, pozostałe
+(z atrybutem `data-more`) po kliknięciu "Pokaż więcej realizacji". Duże kafelki mają klasę `g-wide`.
+
+## Hero
+Animacja w hero to rysunek SVG w `index.html` (projekt kuchni z wymiarami, montaż frontów, LED).
+Nie zależy od jakości zdjęć. Kolory frontów do wyboru ustawia się w `js/main.js` (tablica `fronts`).

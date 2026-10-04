@@ -37,95 +37,65 @@
     sections.forEach((s) => io.observe(s));
   }
 
-  /* ---------- Hero: szafka, która otwiera się na kolejne realizacje ---------- */
-  const slides = [
-    { src: "img/kuchnia-czarna-dab.webp", caption: "Kuchnia: czarny mat i dąb", alt: "Kuchnia z czarnymi matowymi frontami i dębem" },
-    { src: "img/kuchnia-lamele-dab.webp", caption: "Kuchnia: lamele, dąb i biel", alt: "Kuchnia z lamelowymi frontami i dębowym blatem" },
-    { src: "img/salon-rtv.webp", caption: "Salon: ściana RTV z lamelami", alt: "Ściana RTV w salonie z białą szafką i lamelami" },
-    { src: "img/lazienka-zabudowa.webp", caption: "Łazienka: dębowa zabudowa", alt: "Łazienka z dębową zabudową WC i regałami" },
-    { src: "img/schody-zabudowa.webp", caption: "Zabudowa pod schodami", alt: "Zabudowa pod schodami z szufladami i półką na książki" },
-    { src: "img/kuchnia-dab-polysk.webp", caption: "Kuchnia: dąb i biały połysk", alt: "Kuchnia w kształcie L z dębowymi szafkami" }
+  /* ---------- Hero: rysunek kuchni i kolory frontów ----------
+     Rysowanie, montaż i LED to czyste CSS. Tu tylko wybór koloru frontów:
+     po intro kolory zmieniają się same, dopóki ktoś nie kliknie próbki. */
+  const kitchen = $("#kitchen");
+  const frontName = $("#frontName");
+  const swatchBox = $("#swatches");
+  const fronts = [
+    { name: "Kaszmir", front: "#D8CEC1", handle: "#1F1D1B", tone: "light" },
+    { name: "Biały mat", front: "#F3F1EC", handle: "#1F1D1B", tone: "light" },
+    { name: "Szary", front: "#A9ADAD", handle: "#1F1D1B", tone: "light" },
+    { name: "Turkus", front: "#1F9A97", handle: "#ECE8E1", tone: "dark" },
+    { name: "Czarny mat", front: "#2C2B2A", handle: "#B9B4AC", tone: "dark" }
   ];
-
-  const cabinet = $("#cabinet");
-  const cabPhoto = $("#cabinetPhoto");
-  const cabCaption = $("#cabinetCaption");
-  const cabDots = $("#cabinetDots");
-  const CLOSE_MS = 1250;
-  const OPEN_MS = 1550;
-  const HOLD_MS = 5200;
-  const wait = (ms) => new Promise((r) => setTimeout(r, ms));
-  let current = 0;
-  let busy = false;
-  let pending = null;
-  let timer = null;
-  let paused = false;
+  let frontIndex = 0;
+  let autoTimer = null;
+  let userPicked = false;
+  let heroHover = false;
   let heroVisible = true;
 
-  slides.forEach((s) => { const i = new Image(); i.src = s.src; });
-
-  const updateMeta = () => {
-    cabCaption.textContent = slides[current].caption;
-    $$("button", cabDots).forEach((b, i) => b.setAttribute("aria-current", String(i === current)));
+  const setFront = (i) => {
+    frontIndex = (i + fronts.length) % fronts.length;
+    const f = fronts[frontIndex];
+    kitchen.style.setProperty("--front", f.front);
+    kitchen.style.setProperty("--handle", f.handle);
+    kitchen.dataset.tone = f.tone;
+    frontName.textContent = f.name;
+    $$(".swatch", swatchBox).forEach((b, k) => b.setAttribute("aria-pressed", String(k === frontIndex)));
   };
 
-  const swapPhoto = async (slide) => {
-    cabPhoto.src = slide.src;
-    cabPhoto.alt = slide.alt;
-    try { await cabPhoto.decode(); } catch (e) { /* zdjęcie i tak się pokaże */ }
-  };
-
-  const goTo = async (index) => {
-    const target = (index + slides.length) % slides.length;
-    if (target === current) return;
-    if (busy) { pending = target; return; }
-    busy = true;
-    current = target;
-    updateMeta();
-    if (reduceMotion) {
-      await swapPhoto(slides[current]);
-    } else {
-      cabinet.classList.remove("is-open");      // fronty się domykają
-      await wait(CLOSE_MS);
-      await swapPhoto(slides[current]);         // zmiana zdjęcia za zamkniętymi drzwiami
-      await wait(220);
-      cabinet.classList.add("is-open");         // i otwierają na nową realizację
-      await wait(OPEN_MS);
-    }
-    busy = false;
-    if (pending !== null) { const p = pending; pending = null; goTo(p); }
-  };
-
-  slides.forEach((s, i) => {
+  fronts.forEach((f, i) => {
     const b = document.createElement("button");
     b.type = "button";
-    b.setAttribute("aria-label", `Pokaż realizację ${i + 1} z ${slides.length}: ${s.caption}`);
-    b.addEventListener("click", () => { goTo(i); restart(); });
-    cabDots.appendChild(b);
+    b.className = "swatch";
+    b.style.setProperty("--c", f.front);
+    b.setAttribute("aria-label", `Fronty: ${f.name}`);
+    b.setAttribute("aria-pressed", String(i === 0));
+    b.addEventListener("click", () => {
+      userPicked = true;
+      clearInterval(autoTimer);
+      setFront(i);
+    });
+    swatchBox.appendChild(b);
   });
+  setFront(0);
 
-  const tick = () => { if (!paused && heroVisible && !document.hidden && !busy) goTo(current + 1); };
-  const restart = () => {
-    clearInterval(timer);
-    if (!reduceMotion) timer = setInterval(tick, HOLD_MS + CLOSE_MS + OPEN_MS);
-  };
-
-  updateMeta();
-  // pierwsze otwarcie: krótka pauza, żeby było widać zamkniętą szafkę
-  (async () => {
-    try { await cabPhoto.decode(); } catch (e) { /* bez znaczenia */ }
-    if (!reduceMotion) await wait(500);
-    cabinet.classList.add("is-open");
-    restart();
-  })();
-
+  // pokaz kolorów: startuje po zakończeniu rysowania, zatrzymuje się po kliknięciu
+  if (!reduceMotion) {
+    setTimeout(() => {
+      if (userPicked) return;
+      autoTimer = setInterval(() => {
+        if (!userPicked && !heroHover && heroVisible && !document.hidden) setFront(frontIndex + 1);
+      }, 3200);
+    }, 4600);
+  }
   const heroVisual = $(".hero__visual");
-  heroVisual.addEventListener("mouseenter", () => { paused = true; });
-  heroVisual.addEventListener("mouseleave", () => { paused = false; });
-  heroVisual.addEventListener("focusin", () => { paused = true; });
-  heroVisual.addEventListener("focusout", () => { paused = false; });
+  heroVisual.addEventListener("mouseenter", () => { heroHover = true; });
+  heroVisual.addEventListener("mouseleave", () => { heroHover = false; });
   if ("IntersectionObserver" in window) {
-    new IntersectionObserver(([en]) => { heroVisible = en.isIntersecting; }).observe(cabinet);
+    new IntersectionObserver(([en]) => { heroVisible = en.isIntersecting; }).observe(kitchen);
   }
 
   /* ---------- Oferta ---------- */
@@ -163,6 +133,16 @@
   const tiles = $$("li", gallery);
   const chips = $$(".chip");
 
+  const moreWrap = $(".gallery__more");
+  const moreBtn = $("#galleryMore");
+  moreBtn.addEventListener("click", () => {
+    gallery.classList.add("is-expanded");
+    moreWrap.hidden = true;
+    // fokus na pierwsze nowo odsłonięte zdjęcie
+    const first = $("li[data-more] button", gallery);
+    if (first) first.focus({ preventScroll: true });
+  });
+
   chips.forEach((chip) => {
     chip.addEventListener("click", () => {
       const f = chip.dataset.filter;
@@ -175,6 +155,7 @@
       void gallery.offsetWidth;
       tiles.forEach((t) => { t.hidden = !(f === "all" || t.dataset.cat === f); });
       gallery.classList.toggle("is-filtered", f !== "all");
+      moreWrap.hidden = f !== "all" || gallery.classList.contains("is-expanded");
       gallery.classList.add("is-filtering");
     });
   });
@@ -254,7 +235,7 @@
   })();
 
   // galeria realizacji
-  const visibleTiles = () => tiles.filter((t) => !t.hidden);
+  const visibleTiles = () => tiles.filter((t) => t.offsetParent !== null);
   tiles.forEach((t) => {
     const btn = $("button", t);
     const pic = $("img", t);

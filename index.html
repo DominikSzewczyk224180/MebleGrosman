@@ -12,7 +12,7 @@
   <meta property="og:type" content="website">
   <meta property="og:title" content="Meble Grosman | Meble na wymiar, Pszów">
   <meta property="og:description" content="Kuchnie, szafy i zabudowy robione na wymiar w Pszowie. Zobacz nasze realizacje.">
-  <meta property="og:image" content="img/kuchnia-czarna-dab.webp">
+  <meta property="og:image" content="img/kuchnia-grafit-dab.webp">
   <meta property="og:locale" content="pl_PL">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -29,7 +29,7 @@
     "description": "Producent mebli na wymiar: kuchnie, szafy, zabudowy, meble łazienkowe i biurowe.",
     "telephone": "+48502307043",
     "email": "sklepgrosman@gmail.com",
-    "image": "img/kuchnia-czarna-dab.webp",
+    "image": "img/kuchnia-grafit-dab.webp",
     "logo": "img/logo-full.png",
     "address": {
       "@type": "PostalAddress",
@@ -89,26 +89,189 @@
         </div>
 
         <figure class="hero__visual">
-          <div class="cabinet" id="cabinet">
-            <div class="cabinet__body">
-              <div class="cabinet__inside">
-                <img id="cabinetPhoto" src="img/kuchnia-czarna-dab.webp" alt="Kuchnia z czarnymi matowymi frontami i dębem" width="414" height="414" fetchpriority="high">
-              </div>
-            </div>
-            <div class="door door--left" aria-hidden="true">
-              <span class="door__face door__face--front"><i class="door__handle"></i></span>
-              <span class="door__face door__face--back"><i class="door__hinge"></i><i class="door__hinge"></i></span>
-              <span class="door__edge"></span>
-            </div>
-            <div class="door door--right" aria-hidden="true">
-              <span class="door__face door__face--front"><i class="door__handle"></i></span>
-              <span class="door__face door__face--back"><i class="door__hinge"></i><i class="door__hinge"></i></span>
-              <span class="door__edge"></span>
-            </div>
-          </div>
-          <figcaption class="hero__caption">
-            <span id="cabinetCaption">Kuchnia: czarny mat i dąb</span>
-            <span class="hero__dots" id="cabinetDots"></span>
+<svg class="kitchen" id="kitchen" viewBox="0 0 660 500" role="img" aria-labelledby="kitchenTitle" xmlns="http://www.w3.org/2000/svg">
+            <title id="kitchenTitle">Projekt kuchni na wymiar: od rysunku z wymiarami do gotowej zabudowy z podświetleniem</title>
+            <defs>
+              <pattern id="kGrid" width="16" height="16" patternUnits="userSpaceOnUse">
+                <path d="M16 0H0V16" fill="none" stroke="#24221F" stroke-opacity=".08" stroke-width="1"/>
+              </pattern>
+              <pattern id="kOak" width="300" height="56" patternUnits="userSpaceOnUse">
+                <rect width="300" height="56" fill="#C8955C"/>
+                <path d="M0 5C70 3 150 8 300 5" stroke="#A97640" stroke-opacity=".45" stroke-width="1.2" fill="none"/>
+                <path d="M0 11C90 13 190 9 300 11" stroke="#DDB07A" stroke-opacity=".55" stroke-width="1" fill="none"/>
+                <path d="M0 18C60 16 130 21 210 18S280 16 300 18" stroke="#9E6C38" stroke-opacity=".35" stroke-width="1.6" fill="none"/>
+                <path d="M0 25C80 27 170 22 300 25" stroke="#D9AA72" stroke-opacity=".5" stroke-width=".8" fill="none"/>
+                <path d="M0 32C100 30 200 35 300 32" stroke="#B07D46" stroke-opacity=".4" stroke-width="1.1" fill="none"/>
+                <path d="M0 38C40 40 110 36 170 38S260 41 300 38" stroke="#E2B784" stroke-opacity=".45" stroke-width="1" fill="none"/>
+                <path d="M0 45C90 43 180 47 300 45" stroke="#A06E3A" stroke-opacity=".38" stroke-width="1.3" fill="none"/>
+                <path d="M0 51C70 53 160 49 300 51" stroke="#D6A874" stroke-opacity=".5" stroke-width=".9" fill="none"/>
+                <path d="M120 21c14-3 28-3 40 0" stroke="#8F5F2F" stroke-opacity=".35" stroke-width="1" fill="none"/>
+              </pattern>
+              <linearGradient id="kEdge" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#E0B27C"/><stop offset=".25" stop-color="#C38E55"/><stop offset="1" stop-color="#A9743E"/>
+              </linearGradient>
+              <linearGradient id="kSheen" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#fff" stop-opacity=".16"/><stop offset="1" stop-color="#fff" stop-opacity="0"/>
+              </linearGradient>
+              <linearGradient id="kShade" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#1A1816" stop-opacity=".38"/><stop offset="1" stop-color="#1A1816" stop-opacity="0"/>
+              </linearGradient>
+              <linearGradient id="kLight" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#FFE6B0" stop-opacity=".9"/>
+                <stop offset=".45" stop-color="#FFE0A0" stop-opacity=".28"/>
+                <stop offset="1" stop-color="#FFE0A0" stop-opacity="0"/>
+              </linearGradient>
+              <linearGradient id="kCounterLight" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#FFE9BE" stop-opacity=".55"/><stop offset="1" stop-color="#FFE9BE" stop-opacity="0"/>
+              </linearGradient>
+              <linearGradient id="kGlass" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#3A3836"/><stop offset=".42" stop-color="#252321"/>
+                <stop offset=".43" stop-color="#2F2D2B"/><stop offset=".62" stop-color="#2F2D2B"/>
+                <stop offset=".63" stop-color="#211F1E"/><stop offset="1" stop-color="#191817"/>
+              </linearGradient>
+              <radialGradient id="kFloor" cx=".5" cy=".5" r=".5">
+                <stop offset="0" stop-color="#24221F" stop-opacity=".22"/><stop offset=".6" stop-color="#24221F" stop-opacity=".08"/>
+                <stop offset="1" stop-color="#24221F" stop-opacity="0"/>
+              </radialGradient>
+              <filter id="kDrop" x="-5%" y="-5%" width="110%" height="115%">
+                <feDropShadow dx="0" dy="3" stdDeviation="3.5" flood-color="#24221F" flood-opacity=".16"/>
+              </filter>
+              <filter id="kGlow" x="-10%" y="-600%" width="120%" height="1300%"><feGaussianBlur stdDeviation="3.2"/></filter>
+              <mask id="kWoodMask" maskUnits="userSpaceOnUse" x="0" y="0" width="660" height="500">
+                <rect class="k-wipe" style="--d:1.35s" x="150" y="190" width="452" height="110" fill="#fff"/>
+                <rect class="k-wipe" style="--d:1.6s" x="148" y="298" width="460" height="16" fill="#fff"/>
+              </mask>
+            </defs>
+            <rect class="k-grid" x="0" y="0" width="660" height="470" fill="url(#kGrid)"/>
+            <ellipse class="k-floor" cx="320" cy="472" rx="330" ry="16" fill="url(#kFloor)"/>
+            <g class="k-materials">
+            <g mask="url(#kWoodMask)">
+            <rect x="152" y="190" width="448" height="110" fill="url(#kOak)"/>
+            <rect x="150" y="300" width="456" height="12" fill="url(#kEdge)"/>
+            <rect x="150" y="300" width="456" height="1.5" fill="#F0CB98" opacity=".8"/>
+            </g>
+            <rect class="k-fade" style="--d:1.9s" x="40" y="458" width="560" height="12" fill="#2B2825"/>
+            <g filter="url(#kDrop)">
+            <rect class="k-front" style="--i:1.1" x="41" y="51" width="108" height="98" rx="1"/>
+            <rect class="k-front" style="--i:1.8" x="41" y="263" width="108" height="194" rx="1"/>
+            <rect class="k-front" style="--i:3.5" x="153" y="51" width="108" height="138" rx="1"/>
+            <rect class="k-front" style="--i:6.0" x="263" y="51" width="108" height="138" rx="1"/>
+            <rect class="k-front" style="--i:8.4" x="373" y="51" width="108" height="68" rx="1"/>
+            <rect class="k-front" style="--i:8.7" x="373" y="121" width="108" height="68" rx="1"/>
+            <rect class="k-front" style="--i:10.9" x="483" y="51" width="116" height="138" rx="1"/>
+            <rect class="k-front" style="--i:4.4" x="153" y="313" width="108" height="42" rx="1"/>
+            <rect class="k-front" style="--i:4.6" x="153" y="357" width="108" height="48" rx="1"/>
+            <rect class="k-front" style="--i:4.7" x="153" y="407" width="108" height="50" rx="1"/>
+            <rect class="k-front" style="--i:6.9" x="263" y="313" width="53" height="144" rx="1"/>
+            <rect class="k-front" style="--i:8.1" x="318" y="313" width="53" height="144" rx="1"/>
+            <rect class="k-front" style="--i:9.3" x="373" y="313" width="108" height="144" rx="1"/>
+            <rect class="k-front" style="--i:11.8" x="483" y="313" width="116" height="71" rx="1"/>
+            <rect class="k-front" style="--i:12.0" x="483" y="386" width="116" height="71" rx="1"/>
+            </g>
+            <rect class="k-sheen" x="40" y="50" width="560" height="140" fill="url(#kSheen)"/>
+            <rect class="k-sheen" x="40" y="312" width="560" height="146" fill="url(#kSheen)"/>
+            <rect class="k-sheen" x="152" y="312" width="448" height="7" fill="url(#kShade)"/>
+            <g class="k-fade" style="--d:2.05s">
+            <rect x="41" y="151" width="108" height="110" fill="#1F1D1B"/>
+            <rect x="41" y="151" width="108" height="16" fill="#2B2927"/>
+            <rect x="80" y="156" width="30" height="6" rx="1.5" fill="#79A6A1" opacity=".75"/>
+            <rect x="47" y="173" width="96" height="82" rx="2" fill="url(#kGlass)"/>
+            <rect x="53" y="177" width="84" height="3.5" rx="1.75" fill="#9C978F"/>
+            </g>
+            <rect class="k-handle" style="--i:3.5" x="139" y="112" width="3.5" height="32" rx="1.6"/>
+            <rect class="k-handle" style="--i:4.0" x="139" y="270" width="3.5" height="48" rx="1.6"/>
+            <rect class="k-handle" style="--i:5.2" x="187" y="319" width="40" height="3.5" rx="1.6"/>
+            <rect class="k-handle" style="--i:5.4" x="187" y="363" width="40" height="3.5" rx="1.6"/>
+            <rect class="k-handle" style="--i:5.5" x="187" y="413" width="40" height="3.5" rx="1.6"/>
+            <rect class="k-handle" style="--i:7.9" x="308" y="322" width="3.5" height="40" rx="1.6"/>
+            <rect class="k-handle" style="--i:8.2" x="322.5" y="322" width="3.5" height="40" rx="1.6"/>
+            <rect class="k-handle" style="--i:10.1" x="407" y="319" width="40" height="3.5" rx="1.6"/>
+            <rect class="k-handle" style="--i:12.6" x="521" y="319" width="40" height="3.5" rx="1.6"/>
+            <rect class="k-handle" style="--i:12.9" x="521" y="392" width="40" height="3.5" rx="1.6"/>
+            <rect class="k-fade" style="--d:2.2s" x="184" y="297.5" width="70" height="2.5" rx="1" fill="#151413"/>
+            <rect class="k-fade" style="--d:2.2s" x="356" y="298" width="66" height="2" fill="#151413"/>
+            <g class="k-rise" style="--d:2.35s">
+            <rect x="398.5" y="292" width="8" height="8" rx="1.5" fill="#1C1A18"/>
+            <path d="M402.5 294V246q0-11-10.5-11t-10.5 11v7" fill="none" stroke="#1C1A18" stroke-width="4" stroke-linecap="round"/>
+            </g>
+            <g class="k-rise" style="--d:2.5s">
+            <path d="M560 222c4 18 5 40 3 56h-6c-1-20 0-38 3-56z" fill="#55744C"/>
+            <path d="M571 214c3 22 2 44-1 64h-6c0-22 2-44 7-64z" fill="#6B8D5A"/>
+            <path d="M581 228c-1 18-3 34-7 50h-6c3-18 7-34 13-50z" fill="#4C6A45"/>
+            <path d="M552 238c5 12 8 26 8 40h-5c-2-14-3-27-3-40z" fill="#7A9A62"/>
+            <path d="M553 276h32l-3 24h-26z" fill="#2E2B28"/>
+            </g>
+            <g class="k-led">
+            <rect x="152" y="192" width="448" height="108" fill="url(#kLight)"/>
+            <rect x="152" y="301" width="448" height="10" fill="url(#kCounterLight)" opacity=".7"/>
+            <rect x="158" y="190" width="436" height="3" fill="#FFE9B8" filter="url(#kGlow)"/>
+            <rect x="158" y="190" width="436" height="2" rx="1" fill="#FFF7E2"/>
+            </g>
+            </g>
+            <g class="k-blueprint" fill="none">
+            <path class="k-line" style="--d:0.2s" d="M41 51H149V149H41Z" pathLength="1"/>
+            <path class="k-line" style="--d:0.2s" d="M41 263H149V457H41Z" pathLength="1"/>
+            <path class="k-line" style="--d:0.34s" d="M153 51H261V189H153Z" pathLength="1"/>
+            <path class="k-line" style="--d:0.48s" d="M263 51H371V189H263Z" pathLength="1"/>
+            <path class="k-line" style="--d:0.61s" d="M373 51H481V119H373Z" pathLength="1"/>
+            <path class="k-line" style="--d:0.61s" d="M373 121H481V189H373Z" pathLength="1"/>
+            <path class="k-line" style="--d:0.75s" d="M483 51H599V189H483Z" pathLength="1"/>
+            <path class="k-line" style="--d:0.34s" d="M153 313H261V355H153Z" pathLength="1"/>
+            <path class="k-line" style="--d:0.34s" d="M153 357H261V405H153Z" pathLength="1"/>
+            <path class="k-line" style="--d:0.34s" d="M153 407H261V457H153Z" pathLength="1"/>
+            <path class="k-line" style="--d:0.48s" d="M263 313H316V457H263Z" pathLength="1"/>
+            <path class="k-line" style="--d:0.55s" d="M318 313H371V457H318Z" pathLength="1"/>
+            <path class="k-line" style="--d:0.61s" d="M373 313H481V457H373Z" pathLength="1"/>
+            <path class="k-line" style="--d:0.75s" d="M483 313H599V384H483Z" pathLength="1"/>
+            <path class="k-line" style="--d:0.75s" d="M483 386H599V457H483Z" pathLength="1"/>
+            <path class="k-line" style="--d:0.44000000000000006s" d="M152 190H600V300H152Z" pathLength="1"/>
+            <path class="k-line" style="--d:0.54s" d="M150 300H606V312H150Z" pathLength="1"/>
+            <path class="k-line" style="--d:0.5s" d="M40 458H600V470H40Z" pathLength="1"/>
+            <path class="k-line" style="--d:0.30000000000000004s" d="M41 151H149V261H41Z" pathLength="1"/>
+            <path class="k-line" style="--d:0.45999999999999996s" d="M47 173H143V255H47Z" pathLength="1"/>
+            <path class="k-line" style="--d:0.05s" d="M10 470H650" pathLength="1"/>
+            <path class="k-line" style="--d:1.0s" d="M402.5 300V246q0-11-10.5-11t-10.5 11v7" pathLength="1"/>
+            </g>
+            <g class="k-gaps" fill="none">
+            <path d="M41 51H149V149H41Z"/>
+            <path d="M41 263H149V457H41Z"/>
+            <path d="M153 51H261V189H153Z"/>
+            <path d="M263 51H371V189H263Z"/>
+            <path d="M373 51H481V119H373Z"/>
+            <path d="M373 121H481V189H373Z"/>
+            <path d="M483 51H599V189H483Z"/>
+            <path d="M153 313H261V355H153Z"/>
+            <path d="M153 357H261V405H153Z"/>
+            <path d="M153 407H261V457H153Z"/>
+            <path d="M263 313H316V457H263Z"/>
+            <path d="M318 313H371V457H318Z"/>
+            <path d="M373 313H481V457H373Z"/>
+            <path d="M483 313H599V384H483Z"/>
+            <path d="M483 386H599V457H483Z"/>
+            </g>
+            <g class="k-dims">
+            <path class="k-line k-dim" style="--d:0.45s" d="M40 22H600" pathLength="1"/>
+            <path class="k-line k-dim" style="--d:0.4s" d="M40 27V44" pathLength="1"/>
+            <path class="k-line k-dim" style="--d:0.4s" d="M600 27V44" pathLength="1"/>
+            <path class="k-line k-dim" style="--d:0.9s" d="M36 26l8-8" pathLength="1"/>
+            <path class="k-line k-dim" style="--d:0.9s" d="M596 26l8-8" pathLength="1"/>
+            <path class="k-line k-dim" style="--d:0.7s" d="M626 50V190" pathLength="1"/>
+            <path class="k-line k-dim" style="--d:0.6s" d="M606 50H632" pathLength="1"/>
+            <path class="k-line k-dim" style="--d:0.6s" d="M606 190H632" pathLength="1"/>
+            <path class="k-line k-dim" style="--d:1.1s" d="M622 54l8-8" pathLength="1"/>
+            <path class="k-line k-dim" style="--d:1.1s" d="M622 194l8-8" pathLength="1"/>
+            <path class="k-line k-dim" style="--d:0.8s" d="M626 300V470" pathLength="1"/>
+            <path class="k-line k-dim" style="--d:0.7s" d="M610 300H632" pathLength="1"/>
+            <path class="k-line k-dim" style="--d:1.2s" d="M622 304l8-8" pathLength="1"/>
+            <path class="k-line k-dim" style="--d:1.2s" d="M622 474l8-8" pathLength="1"/>
+            <text class="k-label" x="320" y="14" text-anchor="middle">3000</text>
+            <text class="k-label" transform="translate(646 120) rotate(-90)" text-anchor="middle">720</text>
+            <text class="k-label" transform="translate(646 385) rotate(-90)" text-anchor="middle">900</text>
+            </g>
+            </svg>
+          <figcaption class="kitchen-ui">
+            <span class="kitchen-ui__label">Fronty: <strong id="frontName">Kaszmir</strong></span>
+            <span class="swatches" id="swatches" role="group" aria-label="Wybierz kolor frontów"></span>
           </figcaption>
         </figure>
       </div>
@@ -125,11 +288,11 @@
         <div class="offer__grid">
           <ul class="offer__list" id="offerList">
             <li>
-              <button class="offer__item is-active" data-img="img/kuchnia-lamele-dab.webp" data-alt="Kuchnia z lamelowymi frontami i dębowym blatem">
+              <button class="offer__item is-active" data-img="img/kuchnia-grafit-dab.webp" data-alt="Kuchnia w kształcie L: grafitowe fronty, dąb i LED">
                 <span class="offer__name">Kuchnie</span>
                 <span class="offer__desc">W zabudowie, w kształcie L i U, z wyspą lub półwyspem. Fronty w macie, połysku, okleinie drewnopodobnej i lameli.</span>
               </button>
-              <img class="offer__thumb" src="img/kuchnia-lamele-dab.webp" alt="" loading="lazy" width="414" height="414">
+              <img class="offer__thumb" src="img/kuchnia-grafit-dab.webp" alt="" loading="lazy" width="414" height="414">
             </li>
             <li>
               <button class="offer__item" data-img="img/szafa-dab.webp" data-alt="Szafa wnękowa z białymi frontami i dębowym bokiem">
@@ -153,11 +316,11 @@
               <img class="offer__thumb" src="img/lazienka-szafka.webp" alt="" loading="lazy" width="414" height="414">
             </li>
             <li>
-              <button class="offer__item" data-img="img/salon-rtv.webp" data-alt="Ściana RTV w salonie z białą szafką i lamelami">
+              <button class="offer__item" data-img="img/salon-witryny-czarne.webp" data-alt="Czarne witryny z ryflowanym szkłem">
                 <span class="offer__name">Salon i RTV</span>
                 <span class="offer__desc">Szafki RTV, witryny z podświetleniem i ściany z lameli, które spinają całe wnętrze.</span>
               </button>
-              <img class="offer__thumb" src="img/salon-rtv.webp" alt="" loading="lazy" width="414" height="414">
+              <img class="offer__thumb" src="img/salon-witryny-czarne.webp" alt="" loading="lazy" width="414" height="414">
             </li>
             <li>
               <button class="offer__item" data-img="img/schody-zabudowa.webp" data-alt="Zabudowa pod schodami z szufladami i półką na książki">
@@ -169,7 +332,7 @@
           </ul>
 
           <div class="offer__preview" aria-hidden="true">
-            <img id="offerPreview" src="img/kuchnia-lamele-dab.webp" alt="" width="414" height="414">
+            <img id="offerPreview" src="img/kuchnia-grafit-dab.webp" alt="" width="414" height="414">
           </div>
         </div>
       </div>
@@ -186,7 +349,7 @@
           <div class="filters" role="group" aria-label="Filtruj realizacje">
             <button class="chip is-active" data-filter="all" aria-pressed="true">Wszystkie</button>
             <button class="chip" data-filter="kuchnie" aria-pressed="false">Kuchnie</button>
-            <button class="chip" data-filter="szafy" aria-pressed="false">Szafy i przedpokoje</button>
+            <button class="chip" data-filter="szafy" aria-pressed="false">Szafy i zabudowy</button>
             <button class="chip" data-filter="lazienki" aria-pressed="false">Łazienki</button>
             <button class="chip" data-filter="salon" aria-pressed="false">Salon</button>
             <button class="chip" data-filter="inne" aria-pressed="false">Inne</button>
@@ -194,22 +357,34 @@
         </div>
 
         <ul class="gallery" id="gallery">
-          <li class="g-wide" data-cat="kuchnie"><button><img src="img/kuchnia-czarna-dab.webp" alt="Kuchnia z czarnymi matowymi frontami i dębem, podświetlany regał" loading="lazy" width="414" height="414"></button></li>
-          <li data-cat="szafy"><button><img src="img/przedpokoj-lamele.webp" alt="Przedpokój z lamelową zabudową i półką" loading="lazy" width="414" height="414"></button></li>
+          <li class="g-wide" data-cat="kuchnie"><button><img src="img/kuchnia-grafit-dab.webp" alt="Kuchnia w kształcie L: grafitowe fronty, dąb i podświetlenie LED" loading="lazy" width="414" height="414"></button></li>
+          <li data-cat="kuchnie"><button><img src="img/kuchnia-czarna-marmur.webp" alt="Kuchnia z czarnymi matowymi szafkami, blatem w marmurze i frontami w orzechu" loading="lazy" width="414" height="414"></button></li>
           <li data-cat="lazienki"><button><img src="img/lazienka-zabudowa.webp" alt="Łazienka z dębową zabudową WC i regałami" loading="lazy" width="414" height="414"></button></li>
-          <li data-cat="kuchnie"><button><img src="img/kuchnia-dab-polysk.webp" alt="Kuchnia w kształcie L z dębowymi szafkami i białym połyskiem" loading="lazy" width="414" height="414"></button></li>
-          <li data-cat="szafy"><button><img src="img/szafa-przedpokoj.webp" alt="Beżowa szafa w przedpokoju z czarnymi uchwytami" loading="lazy" width="414" height="414"></button></li>
-          <li class="g-wide g-right" data-cat="inne"><button><img src="img/schody-zabudowa.webp" alt="Zabudowa pod schodami z szufladami i półką na książki" loading="lazy" width="414" height="414"></button></li>
-          <li data-cat="lazienki"><button><img src="img/lazienka-szafka.webp" alt="Szafka łazienkowa z szufladami i umywalką nablatową" loading="lazy" width="414" height="414"></button></li>
-          <li data-cat="salon"><button><img src="img/salon-witryna.webp" alt="Witryna z podświetleniem między lamelowymi frontami" loading="lazy" width="414" height="414"></button></li>
-          <li data-cat="inne"><button><img src="img/biurko-lamele.webp" alt="Narożne biurko z lamelowym panelem" loading="lazy" width="414" height="414"></button></li>
-          <li data-cat="szafy"><button><img src="img/szafa-dab.webp" alt="Szafa z białymi frontami i dębowym bokiem" loading="lazy" width="414" height="414"></button></li>
-          <li class="g-wide" data-cat="kuchnie"><button><img src="img/kuchnia-lamele-dab.webp" alt="Kuchnia z lamelowymi frontami i dębowym blatem" loading="lazy" width="414" height="414"></button></li>
-          <li data-cat="salon"><button><img src="img/salon-rtv.webp" alt="Ściana RTV w salonie z białą szafką i lamelami" loading="lazy" width="414" height="414"></button></li>
-          <li data-cat="kuchnie"><button><img src="img/kuchnia-bialo-czarna.webp" alt="Kuchnia z białymi frontami w połysku i czarnym blatem" loading="lazy" width="414" height="414"></button></li>
+          <li data-cat="kuchnie"><button><img src="img/kuchnia-biala-polysk-led.webp" alt="Kuchnia z białymi frontami w połysku, dębową blendą i LED" loading="lazy" width="414" height="414"></button></li>
           <li data-cat="szafy"><button><img src="img/przedpokoj-konsola.webp" alt="Przedpokój z dębową ścianą i konsolą" loading="lazy" width="414" height="414"></button></li>
-          <li data-cat="kuchnie"><button><img src="img/kuchnia-dab-polysk-2.webp" alt="Kuchnia z dębem i wysoką zabudową w połysku" loading="lazy" width="414" height="414"></button></li>
+          <li class="g-wide g-right" data-cat="salon"><button><img src="img/salon-witryny-czarne.webp" alt="Czarne witryny z ryflowanym szkłem i podświetleniem" loading="lazy" width="414" height="414"></button></li>
+          <li data-cat="kuchnie"><button><img src="img/kuchnia-czarna-dab.webp" alt="Kuchnia z czarnymi matowymi frontami i dębem, podświetlany regał" loading="lazy" width="414" height="414"></button></li>
+          <li data-cat="szafy"><button><img src="img/sypialnia-panele.webp" alt="Sypialnia: zabudowa nad łóżkiem i tapicerowane panele" loading="lazy" width="414" height="414"></button></li>
+          <li data-cat="kuchnie"><button><img src="img/kuchnia-cegla.webp" alt="Kuchnia w dębie z czarnym blatem przy ścianie z cegły" loading="lazy" width="414" height="414"></button></li>
+          <li data-cat="inne"><button><img src="img/schody-zabudowa.webp" alt="Zabudowa pod schodami z szufladami i półką na książki" loading="lazy" width="414" height="414"></button></li>
+          <li class="g-wide" data-cat="kuchnie"><button><img src="img/kuchnia-turkus.webp" alt="Kuchnia z turkusowymi frontami i dębowym blatem" loading="lazy" width="414" height="414"></button></li>
+          <li data-cat="salon"><button><img src="img/salon-rtv.webp" alt="Ściana RTV w salonie z białą szafką i lamelami" loading="lazy" width="414" height="414"></button></li>
+          <li data-cat="kuchnie"><button><img src="img/kuchnia-grafit-skos.webp" alt="Grafitowa kuchnia ze słupkiem pod skosem dachu" loading="lazy" width="414" height="414"></button></li>
+          <li data-cat="lazienki"><button><img src="img/lazienka-szafka.webp" alt="Szafka łazienkowa z szufladami i umywalką nablatową" loading="lazy" width="414" height="414"></button></li>
+          <li data-cat="kuchnie"><button><img src="img/kuchnia-witryna-orzech.webp" alt="Kuchnia z półwyspem i podświetlaną witryną w orzechu" loading="lazy" width="414" height="414"></button></li>
+          <li class="g-wide g-right" data-cat="kuchnie" data-more><button><img src="img/kuchnia-lamele-dab.webp" alt="Kuchnia z lamelowymi frontami i dębowym blatem" loading="lazy" width="414" height="414"></button></li>
+          <li data-cat="kuchnie" data-more><button><img src="img/kuchnia-szara-okap.webp" alt="Szara kuchnia z czarnym okapem i ciemnym blatem" loading="lazy" width="414" height="414"></button></li>
+          <li data-cat="salon" data-more><button><img src="img/salon-witryna.webp" alt="Witryna z podświetleniem między lamelowymi frontami" loading="lazy" width="414" height="414"></button></li>
+          <li data-cat="inne" data-more><button><img src="img/biurko-lamele.webp" alt="Narożne biurko z lamelowym panelem" loading="lazy" width="414" height="414"></button></li>
+          <li data-cat="szafy" data-more><button><img src="img/szafa-dab.webp" alt="Szafa z białymi frontami i dębowym bokiem" loading="lazy" width="414" height="414"></button></li>
+          <li data-cat="kuchnie" data-more><button><img src="img/kuchnia-biala-dab-led.webp" alt="Biała kuchnia z dębowym blatem i podświetleniem LED" loading="lazy" width="414" height="414"></button></li>
+          <li data-cat="szafy" data-more><button><img src="img/przedpokoj-lamele.webp" alt="Przedpokój z lamelową zabudową i półką" loading="lazy" width="414" height="414"></button></li>
+          <li data-cat="kuchnie" data-more><button><img src="img/kuchnia-ciemna-wieczor.webp" alt="Kuchnia z ciemnymi szafkami górnymi i dębowymi dolnymi" loading="lazy" width="414" height="414"></button></li>
+          <li data-cat="kuchnie" data-more><button><img src="img/kuchnia-szara-klasyczna.webp" alt="Szara kuchnia w stylu klasycznym z witrynkami" loading="lazy" width="414" height="414"></button></li>
         </ul>
+        <div class="gallery__more">
+          <button class="btn btn--ghost" id="galleryMore" type="button">Pokaż więcej realizacji (9)</button>
+        </div>
       </div>
     </section>
 
