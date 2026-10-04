@@ -37,127 +37,95 @@
     sections.forEach((s) => io.observe(s));
   }
 
-  /* ---------- Hero: zdjęcie z lameli ---------- */
+  /* ---------- Hero: szafka, która otwiera się na kolejne realizacje ---------- */
   const slides = [
     { src: "img/kuchnia-czarna-dab.webp", caption: "Kuchnia: czarny mat i dąb", alt: "Kuchnia z czarnymi matowymi frontami i dębem" },
     { src: "img/kuchnia-lamele-dab.webp", caption: "Kuchnia: lamele, dąb i biel", alt: "Kuchnia z lamelowymi frontami i dębowym blatem" },
     { src: "img/salon-rtv.webp", caption: "Salon: ściana RTV z lamelami", alt: "Ściana RTV w salonie z białą szafką i lamelami" },
     { src: "img/lazienka-zabudowa.webp", caption: "Łazienka: dębowa zabudowa", alt: "Łazienka z dębową zabudową WC i regałami" },
+    { src: "img/schody-zabudowa.webp", caption: "Zabudowa pod schodami", alt: "Zabudowa pod schodami z szufladami i półką na książki" },
     { src: "img/kuchnia-dab-polysk.webp", caption: "Kuchnia: dąb i biały połysk", alt: "Kuchnia w kształcie L z dębowymi szafkami" }
   ];
 
-  const slatsEl = $("#slats");
-  const captionEl = $("#slatsCaption");
-  const dotsEl = $("#slatsDots");
+  const cabinet = $("#cabinet");
+  const cabPhoto = $("#cabinetPhoto");
+  const cabCaption = $("#cabinetCaption");
+  const cabDots = $("#cabinetDots");
+  const CLOSE_MS = 1250;
+  const OPEN_MS = 1550;
+  const HOLD_MS = 5200;
+  const wait = (ms) => new Promise((r) => setTimeout(r, ms));
   let current = 0;
+  let busy = false;
+  let pending = null;
   let timer = null;
   let paused = false;
-  let visible = true;
-  let n = 0;
+  let heroVisible = true;
 
-  // wczytaj zdjęcia z wyprzedzeniem
   slides.forEach((s) => { const i = new Image(); i.src = s.src; });
 
-  const slatCount = () => parseInt(getComputedStyle(slatsEl).getPropertyValue("--n"), 10) || 11;
-
-  const makeFace = (i, src, entering) => {
-    const face = document.createElement("div");
-    face.className = "slat__face" + (entering ? " is-entering" : "");
-    face.style.backgroundImage = `url("${src}")`;
-    return face;
-  };
-
-  const buildSlats = (intro) => {
-    n = slatCount();
-    slatsEl.innerHTML = "";
-    for (let i = 0; i < n; i++) {
-      const slat = document.createElement("div");
-      slat.className = "slat";
-      slat.style.setProperty("--i", i);
-      slat.appendChild(makeFace(i, slides[current].src, false));
-      slatsEl.appendChild(slat);
-    }
-    sizeSlats();
-    if (intro && !reduceMotion) {
-      slatsEl.classList.remove("is-settled");
-      slatsEl.classList.add("is-intro");
-      requestAnimationFrame(() => requestAnimationFrame(() => {
-        slatsEl.classList.add("is-ready");
-        slatsEl.classList.remove("is-intro");
-      }));
-      // fugi ciemnieją, kiedy listwy są już prawie na miejscu
-      setTimeout(() => slatsEl.classList.add("is-settled"), 650 + n * 55);
-    } else {
-      slatsEl.classList.add("is-settled");
-    }
-  };
-
-  const sizeSlats = () => {
-    slatsEl.style.setProperty("--cw", slatsEl.clientWidth + "px");
-  };
-
   const updateMeta = () => {
-    captionEl.textContent = slides[current].caption;
-    slatsEl.setAttribute("aria-label", slides[current].alt);
-    $$("button", dotsEl).forEach((b, i) => b.setAttribute("aria-current", String(i === current)));
+    cabCaption.textContent = slides[current].caption;
+    $$("button", cabDots).forEach((b, i) => b.setAttribute("aria-current", String(i === current)));
   };
 
-  const goTo = (index) => {
-    if (index === current) return;
-    current = (index + slides.length) % slides.length;
-    const src = slides[current].src;
-    $$(".slat", slatsEl).forEach((slat, i) => {
-      const face = makeFace(i, src, !reduceMotion);
-      slat.appendChild(face);
-      const cleanup = () => {
-        while (slat.children.length > 1) slat.removeChild(slat.firstChild);
-        face.classList.remove("is-entering");
-      };
-      if (reduceMotion) cleanup();
-      else face.addEventListener("animationend", cleanup, { once: true });
-    });
+  const swapPhoto = async (slide) => {
+    cabPhoto.src = slide.src;
+    cabPhoto.alt = slide.alt;
+    try { await cabPhoto.decode(); } catch (e) { /* zdjęcie i tak się pokaże */ }
+  };
+
+  const goTo = async (index) => {
+    const target = (index + slides.length) % slides.length;
+    if (target === current) return;
+    if (busy) { pending = target; return; }
+    busy = true;
+    current = target;
     updateMeta();
+    if (reduceMotion) {
+      await swapPhoto(slides[current]);
+    } else {
+      cabinet.classList.remove("is-open");      // fronty się domykają
+      await wait(CLOSE_MS);
+      await swapPhoto(slides[current]);         // zmiana zdjęcia za zamkniętymi drzwiami
+      await wait(220);
+      cabinet.classList.add("is-open");         // i otwierają na nową realizację
+      await wait(OPEN_MS);
+    }
+    busy = false;
+    if (pending !== null) { const p = pending; pending = null; goTo(p); }
   };
 
   slides.forEach((s, i) => {
     const b = document.createElement("button");
     b.type = "button";
-    b.setAttribute("aria-label", `Pokaż zdjęcie ${i + 1} z ${slides.length}: ${s.caption}`);
+    b.setAttribute("aria-label", `Pokaż realizację ${i + 1} z ${slides.length}: ${s.caption}`);
     b.addEventListener("click", () => { goTo(i); restart(); });
-    dotsEl.appendChild(b);
+    cabDots.appendChild(b);
   });
 
-  const tick = () => { if (!paused && visible && !document.hidden) goTo(current + 1); };
+  const tick = () => { if (!paused && heroVisible && !document.hidden && !busy) goTo(current + 1); };
   const restart = () => {
     clearInterval(timer);
-    if (!reduceMotion) timer = setInterval(tick, 5200);
+    if (!reduceMotion) timer = setInterval(tick, HOLD_MS + CLOSE_MS + OPEN_MS);
   };
 
-  buildSlats(true);
   updateMeta();
-  restart();
+  // pierwsze otwarcie: krótka pauza, żeby było widać zamkniętą szafkę
+  (async () => {
+    try { await cabPhoto.decode(); } catch (e) { /* bez znaczenia */ }
+    if (!reduceMotion) await wait(500);
+    cabinet.classList.add("is-open");
+    restart();
+  })();
 
-  const hero = $(".hero__visual");
-  hero.addEventListener("mouseenter", () => { paused = true; });
-  hero.addEventListener("mouseleave", () => { paused = false; });
-  hero.addEventListener("focusin", () => { paused = true; });
-  hero.addEventListener("focusout", () => { paused = false; });
-
+  const heroVisual = $(".hero__visual");
+  heroVisual.addEventListener("mouseenter", () => { paused = true; });
+  heroVisual.addEventListener("mouseleave", () => { paused = false; });
+  heroVisual.addEventListener("focusin", () => { paused = true; });
+  heroVisual.addEventListener("focusout", () => { paused = false; });
   if ("IntersectionObserver" in window) {
-    new IntersectionObserver(([en]) => { visible = en.isIntersecting; }).observe(slatsEl);
-  }
-
-  if ("ResizeObserver" in window) {
-    new ResizeObserver(() => {
-      if (slatCount() !== n) {
-        slatsEl.classList.remove("is-intro", "is-ready");
-        buildSlats(false);
-      } else {
-        sizeSlats();
-      }
-    }).observe(slatsEl);
-  } else {
-    window.addEventListener("resize", sizeSlats);
+    new IntersectionObserver(([en]) => { heroVisible = en.isIntersecting; }).observe(cabinet);
   }
 
   /* ---------- Oferta ---------- */
@@ -303,16 +271,12 @@
     });
   });
 
-  /* ---------- Facebook: najnowsze posty ----------
-     Posty pobiera GitHub Action (scripts/fetch_facebook.py) przez Graph API
-     i zapisuje do data/facebook.json oraz img/fb/. Token nie trafia do przeglądarki.
-     Gdy postów jeszcze nie ma, pokazujemy okno Facebooka wczytywane po kliknięciu. */
+  /* ---------- Facebook: profil w telefonie ----------
+     1) Jeśli data/facebook.json ma posty (GitHub Action + Graph API), rysujemy własny feed:
+        szybki, w stylu strony i bez skryptów Facebooka.
+     2) W przeciwnym razie od razu wczytujemy oficjalną wtyczkę strony Facebooka. */
   const PAGE_URL = "https://www.facebook.com/meblegrosman";
-  const rail = $("#feedRail");
-  const feedFallback = $("#feedFallback");
-  const feedArrows = $("#feedArrows");
-  const feedPrev = $("#feedPrev");
-  const feedNext = $("#feedNext");
+  const phoneContent = $("#phoneContent");
 
   const el = (tag, cls, text) => {
     const node = document.createElement(tag);
@@ -330,7 +294,6 @@
 
   const safeLink = (url) =>
     typeof url === "string" && /^https:\/\/(www\.|m\.|web\.)?facebook\.com\//.test(url) ? url : PAGE_URL;
-
   const safeSrc = (src) => typeof src === "string" && /^img\/fb\/[\w.-]+$/.test(src);
 
   const formatDate = (iso) => {
@@ -351,32 +314,78 @@
     return { label, full };
   };
 
-  const playIcon = () => {
-    const wrap = el("span", "post__play");
-    const circle = el("span");
-    circle.innerHTML = '<svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg>';
-    wrap.appendChild(circle);
-    return wrap;
+  const avatar = (cls) => {
+    const a = el("span", cls);
+    const img = el("img");
+    img.src = "img/logo-mark.png";
+    img.alt = "";
+    a.appendChild(img);
+    return a;
   };
 
-  const postItem = (post, i) => {
-    const li = el("li", "post");
+  const loadPlugin = () => {
+    const w = Math.round(Math.min(500, Math.max(180, phoneContent.clientWidth || 338)));
+    const h = Math.round(Math.max(400, phoneContent.clientHeight || 640));
+    const f = document.createElement("iframe");
+    f.title = "Profil Meble Grosman na Facebooku";
+    f.loading = "lazy";
+    f.setAttribute("allow", "encrypted-media; clipboard-write; web-share");
+    f.src = "https://www.facebook.com/plugins/page.php?href=" + encodeURIComponent(PAGE_URL) +
+      `&tabs=timeline&width=${w}&height=${h}&small_header=false&adapt_container_width=true` +
+      "&hide_cover=false&show_facepile=true&locale=pl_PL";
+    f.addEventListener("load", () => f.classList.add("is-loaded"), { once: true });
+    phoneContent.appendChild(f);
+  };
+
+  const fbPost = (post) => {
+    const article = el("article", "fbpost");
     const date = formatDate(post.date);
     const link = safeLink(post.link);
     const images = post.images.filter((im) => safeSrc(im.src));
-    const first = images[0];
 
-    const media = el(post.video ? "a" : "button", "post__media");
+    const head = el("header", "fbpost__head");
+    head.appendChild(avatar("fbpost__avatar"));
+    const who = el("div");
+    who.appendChild(el("strong", null, "Meble Grosman"));
+    const time = el("time", null, date.label);
+    time.dateTime = post.date;
+    who.appendChild(time);
+    head.appendChild(who);
+    article.appendChild(head);
+
+    if (post.text) article.appendChild(el("p", "fbpost__text", post.text));
+
+    const shown = post.video ? images.slice(0, 1) : images.slice(0, 4);
+    const media = el(post.video ? "a" : "button", `fbpost__media fbpost__media--${shown.length}`);
+    shown.forEach((im, k) => {
+      const img = el("img");
+      img.src = im.src;
+      img.alt = "";
+      img.loading = "lazy";
+      img.decoding = "async";
+      if (k === 0 && shown.length === 1 && im.w && im.h) {
+        // pojedyncze zdjęcie w naturalnych proporcjach, ale w rozsądnych granicach
+        const r = Math.min(1.25, Math.max(0.75, im.h / im.w));
+        media.style.aspectRatio = `1 / ${r.toFixed(3)}`;
+      }
+      media.appendChild(img);
+    });
     if (post.video) {
       media.href = link;
       media.target = "_blank";
       media.rel = "noopener";
       media.setAttribute("aria-label", `Obejrzyj film z ${date.full} na Facebooku`);
+      const play = el("span", "fbpost__play");
+      const circle = el("span");
+      circle.innerHTML = '<svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg>';
+      play.appendChild(circle);
+      media.appendChild(play);
     } else {
       media.type = "button";
       media.setAttribute("aria-label", images.length > 1
         ? `Powiększ ${images.length} ${plural(images.length, ["zdjęcie", "zdjęcia", "zdjęć"])} z posta z ${date.full}`
         : `Powiększ zdjęcie z posta z ${date.full}`);
+      if (images.length > 4) media.appendChild(el("span", "fbpost__extra", `+${images.length - 3}`));
       media.addEventListener("click", () => {
         lightbox.open(images.map((im, k) => ({
           src: im.src,
@@ -386,87 +395,50 @@
         })));
       });
     }
+    article.appendChild(media);
 
-    const img = el("img", "is-loading");
-    img.alt = "";
-    img.decoding = "async";
-    img.loading = i < 4 ? "eager" : "lazy";
-    if (first.w && first.h) { img.width = first.w; img.height = first.h; }
-    img.addEventListener("load", () => img.classList.remove("is-loading"), { once: true });
-    img.addEventListener("error", () => img.classList.remove("is-loading"), { once: true });
-    img.src = first.src;
-    media.appendChild(img);
-
-    if (post.video) {
-      media.appendChild(playIcon());
-    } else if (images.length > 1) {
-      media.appendChild(el("span", "post__badge", `${images.length} ${plural(images.length, ["zdjęcie", "zdjęcia", "zdjęć"])}`));
-    }
-    li.appendChild(media);
-
-    const body = el("div", "post__body");
-    const time = el("time", "post__date", date.label);
-    time.dateTime = post.date;
-    if (date.label !== date.full) time.title = date.full;
-    body.appendChild(time);
-    if (post.text) body.appendChild(el("p", "post__text", post.text));
-    const a = el("a", "post__link", post.video ? "Obejrzyj na Facebooku" : "Zobacz na Facebooku");
+    const a = el("a", "fbpost__link", post.video ? "Obejrzyj na Facebooku" : "Zobacz na Facebooku");
     a.href = link;
     a.target = "_blank";
     a.rel = "noopener";
-    body.appendChild(a);
-    li.appendChild(body);
-    return li;
-  };
-
-  const moreItem = () => {
-    const li = el("li", "post post--more");
-    const a = el("a");
-    a.href = PAGE_URL;
-    a.target = "_blank";
-    a.rel = "noopener";
-    a.appendChild(el("strong", null, "Więcej realizacji znajdziesz na naszym Facebooku"));
-    a.appendChild(el("span", null, "facebook.com/meblegrosman"));
-    li.appendChild(a);
-    return li;
-  };
-
-  const updateArrows = () => {
-    const overflow = rail.scrollWidth > rail.clientWidth + 8;
-    feedArrows.hidden = !overflow;
-    feedPrev.disabled = rail.scrollLeft < 8;
-    feedNext.disabled = rail.scrollLeft + rail.clientWidth > rail.scrollWidth - 8;
+    article.appendChild(a);
+    return article;
   };
 
   const renderFeed = (posts) => {
-    rail.innerHTML = "";
-    posts.forEach((p, i) => rail.appendChild(postItem(p, i)));
-    rail.appendChild(moreItem());
-    rail.removeAttribute("aria-busy");
-    rail.tabIndex = 0;
-    feedFallback.classList.remove("is-shown");
-    updateArrows();
-    rail.addEventListener("scroll", updateArrows, { passive: true });
-    window.addEventListener("resize", updateArrows);
-    const scrollStep = () => {
-      const card = $(".post", rail);
-      const gap = parseFloat(getComputedStyle(rail).columnGap) || 16;
-      const w = card ? card.offsetWidth + gap : 300;
-      return Math.max(1, Math.floor((rail.clientWidth * 0.8) / w)) * w;
-    };
-    const smooth = reduceMotion ? "auto" : "smooth";
-    feedPrev.addEventListener("click", () => rail.scrollBy({ left: -scrollStep(), behavior: smooth }));
-    feedNext.addEventListener("click", () => rail.scrollBy({ left: scrollStep(), behavior: smooth }));
+    const feed = el("div", "fbfeed");
+    feed.tabIndex = 0;
+    feed.setAttribute("aria-label", "Ostatnie posty Meble Grosman z Facebooka");
+
+    const head = el("div", "fbfeed__head");
+    const cover = el("div", "fbfeed__cover");
+    cover.style.backgroundImage = `url("${posts[0].images[0].src}")`;
+    head.appendChild(cover);
+    head.appendChild(avatar("fbfeed__avatar"));
+    const name = el("div", "fbfeed__name");
+    name.appendChild(el("strong", null, "Meble Grosman"));
+    name.appendChild(el("span", null, "Producent mebli na wymiar, Pszów"));
+    head.appendChild(name);
+    const follow = el("a", "btn btn--small fbfeed__follow", "Obserwuj na Facebooku");
+    follow.href = PAGE_URL;
+    follow.target = "_blank";
+    follow.rel = "noopener";
+    head.appendChild(follow);
+    feed.appendChild(head);
+
+    posts.forEach((p) => feed.appendChild(fbPost(p)));
+
+    const end = el("a", "fbfeed__end", "Zobacz wszystkie posty");
+    end.href = PAGE_URL;
+    end.target = "_blank";
+    end.rel = "noopener";
+    feed.appendChild(end);
+
+    phoneContent.innerHTML = "";
+    phoneContent.appendChild(feed);
   };
 
-  const showFallback = () => {
-    rail.hidden = true;
-    rail.removeAttribute("aria-busy");
-    feedArrows.hidden = true;
-    feedFallback.classList.add("is-shown");
-  };
-
-  const loadFeed = async () => {
+  (async () => {
     try {
       const res = await fetch("data/facebook.json", { cache: "no-cache" });
       if (!res.ok) throw new Error("HTTP " + res.status);
@@ -477,37 +449,9 @@
       if (!posts.length) throw new Error("brak postów");
       renderFeed(posts);
     } catch (err) {
-      showFallback();
+      loadPlugin();
     }
-  };
-
-  // wczytaj posty, gdy sekcja zbliża się do ekranu
-  if ("IntersectionObserver" in window) {
-    const feedObs = new IntersectionObserver(([en]) => {
-      if (en.isIntersecting) { feedObs.disconnect(); loadFeed(); }
-    }, { rootMargin: "600px 0px" });
-    feedObs.observe(rail);
-  } else {
-    loadFeed();
-  }
-
-  // okno Facebooka (wtyczka strony), wczytywane dopiero po kliknięciu
-  const fbLoad = $("#fbLoad");
-  const fbEmbed = $("#fbEmbed");
-  fbLoad.addEventListener("click", () => {
-    const w = Math.round(Math.min(500, Math.max(280, fbEmbed.clientWidth)));
-    const h = window.innerWidth < 640 ? 560 : 640;
-    const src = "https://www.facebook.com/plugins/page.php?href=" +
-      encodeURIComponent(PAGE_URL) +
-      `&tabs=timeline&width=${w}&height=${h}&small_header=true&adapt_container_width=true&hide_cover=false&show_facepile=false&locale=pl_PL`;
-    const f = document.createElement("iframe");
-    f.src = src;
-    f.title = "Ostatnie posty Meble Grosman na Facebooku";
-    f.setAttribute("allow", "encrypted-media; clipboard-write");
-    fbEmbed.innerHTML = "";
-    fbEmbed.appendChild(f);
-    fbEmbed.classList.add("is-loaded");
-  });
+  })();
 
   /* ---------- Godziny otwarcia ---------- */
   const hours = { 1: [9, 17], 2: [9, 17], 3: [9, 17], 4: [9, 17], 5: [9, 17], 6: [9, 13], 0: null };

@@ -89,10 +89,26 @@
         </div>
 
         <figure class="hero__visual">
-          <div class="slats" id="slats" role="img" aria-live="polite" aria-label="Kuchnia z czarnymi frontami i dębem"></div>
+          <div class="cabinet" id="cabinet">
+            <div class="cabinet__body">
+              <div class="cabinet__inside">
+                <img id="cabinetPhoto" src="img/kuchnia-czarna-dab.webp" alt="Kuchnia z czarnymi matowymi frontami i dębem" width="414" height="414" fetchpriority="high">
+              </div>
+            </div>
+            <div class="door door--left" aria-hidden="true">
+              <span class="door__face door__face--front"><i class="door__handle"></i></span>
+              <span class="door__face door__face--back"><i class="door__hinge"></i><i class="door__hinge"></i></span>
+              <span class="door__edge"></span>
+            </div>
+            <div class="door door--right" aria-hidden="true">
+              <span class="door__face door__face--front"><i class="door__handle"></i></span>
+              <span class="door__face door__face--back"><i class="door__hinge"></i><i class="door__hinge"></i></span>
+              <span class="door__edge"></span>
+            </div>
+          </div>
           <figcaption class="hero__caption">
-            <span id="slatsCaption">Kuchnia: czarny mat i dąb</span>
-            <span class="hero__dots" id="slatsDots"></span>
+            <span id="cabinetCaption">Kuchnia: czarny mat i dąb</span>
+            <span class="hero__dots" id="cabinetDots"></span>
           </figcaption>
         </figure>
       </div>
@@ -197,43 +213,54 @@
       </div>
     </section>
 
-    <!-- FACEBOOK: posty pobierane przez Graph API (GitHub Action -> data/facebook.json) -->
-    <section class="feed" id="facebook" aria-labelledby="feedTitle">
-      <div class="wrap feed__head">
-        <div class="feed__intro">
-          <h2 id="feedTitle">Najnowsze realizacje</h2>
-          <p>Prosto z naszego Facebooka, gdzie na bieżąco pokazujemy zamontowane meble.</p>
-        </div>
-        <div class="feed__controls">
-          <div class="feed__arrows" id="feedArrows" hidden>
-            <button class="arrow" id="feedPrev" type="button" aria-label="Poprzednie posty" aria-controls="feedRail">
-              <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M15 5l-7 7 7 7" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </button>
-            <button class="arrow" id="feedNext" type="button" aria-label="Następne posty" aria-controls="feedRail">
-              <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </button>
+    <!-- FACEBOOK: profil w telefonie. Domyślnie oficjalna wtyczka strony,
+         a po ustawieniu tokena własny feed z data/facebook.json (bez skryptów Facebooka). -->
+    <section class="social" id="facebook" aria-labelledby="socialTitle">
+      <div class="wrap social__grid">
+        <div class="social__text">
+          <h2 id="socialTitle">Nowości prosto z naszego Facebooka</h2>
+          <p class="social__lead">Tu pojawia się wszystko, co właśnie zamontowaliśmy. Przewijaj posty w telefonie obok, bez wychodzenia ze strony.</p>
+
+          <div class="profile">
+            <span class="profile__avatar"><img src="img/logo-mark.png" alt="" width="40" height="45"></span>
+            <span class="profile__who">
+              <strong>Meble Grosman</strong>
+              <span>facebook.com/meblegrosman</span>
+            </span>
+            <a class="btn btn--small profile__follow" href="https://www.facebook.com/meblegrosman" target="_blank" rel="noopener">Obserwuj</a>
           </div>
-          <a class="btn btn--ghost" href="https://www.facebook.com/meblegrosman" target="_blank" rel="noopener">Obserwuj na Facebooku</a>
+
+          <p class="social__note">Wolisz zadzwonić? <a href="tel:+48502307043">502 307 043</a>, od poniedziałku do soboty.</p>
         </div>
-      </div>
 
-      <ul class="feed__rail" id="feedRail" aria-label="Posty z Facebooka" aria-busy="true">
-        <li class="post post--skeleton" aria-hidden="true"><span></span><i></i><i></i></li>
-        <li class="post post--skeleton" aria-hidden="true"><span></span><i></i><i></i></li>
-        <li class="post post--skeleton" aria-hidden="true"><span></span><i></i><i></i></li>
-        <li class="post post--skeleton" aria-hidden="true"><span></span><i></i><i></i></li>
-      </ul>
-
-      <div class="wrap">
-        <div class="feed__fallback" id="feedFallback">
-          <div class="consent" id="fbEmbed">
-            <div class="consent__inner">
-              <div>
-                <h3>Zobacz nasze posty bez wychodzenia ze strony</h3>
-                <p>Po kliknięciu wczytamy okno Facebooka z naszymi ostatnimi wpisami. Facebook może wtedy zapisać na Twoim urządzeniu swoje pliki cookie.</p>
+        <div class="social__stage">
+          <div class="phone-wrap">
+            <svg class="social__hex" viewBox="0 0 200 174" aria-hidden="true" focusable="false">
+              <polygon points="53,6 147,6 194,87 147,168 53,168 6,87" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linejoin="round"/>
+            </svg>
+            <div class="phone">
+              <span class="phone__button phone__button--a" aria-hidden="true"></span>
+              <span class="phone__button phone__button--b" aria-hidden="true"></span>
+              <div class="phone__screen">
+                <div class="phone__bar" aria-hidden="true"><span class="phone__island"></span></div>
+                <div class="phone__content" id="phoneContent">
+                  <div class="phone__skeleton" aria-hidden="true">
+                    <span class="sk sk--cover"></span>
+                    <span class="sk sk--avatar"></span>
+                    <span class="sk sk--line"></span>
+                    <span class="sk sk--line sk--short"></span>
+                    <span class="sk sk--post"></span>
+                  </div>
+                </div>
               </div>
-              <button class="btn btn--dark" id="fbLoad" type="button">Pokaż posty z Facebooka</button>
             </div>
+            <a class="float-card" href="https://www.google.com/maps/search/?api=1&query=Meble+Grosman+Andersa+6+Psz%C3%B3w" target="_blank" rel="noopener">
+              <span class="float-card__score">4,7</span>
+              <span class="float-card__text">
+                <span class="rating__stars" aria-hidden="true"><span style="width:94%"></span></span>
+                <span>24 opinie w Google</span>
+              </span>
+            </a>
           </div>
         </div>
       </div>

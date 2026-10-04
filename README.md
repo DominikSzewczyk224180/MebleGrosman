@@ -10,21 +10,22 @@ Statyczna strona (HTML, CSS, JS) na GitHub Pages, z automatycznym feedem postów
 ## Struktura
 - `index.html`: treść strony
 - `css/style.css`: wygląd (kolory i fonty w zmiennych na górze pliku)
-- `js/main.js`: lamele w hero, oferta, galeria z lightboxem, feed z Facebooka, godziny otwarcia
+- `js/main.js`: szafka w hero, oferta, galeria z lightboxem, Facebook w telefonie, godziny otwarcia
 - `img/`: zdjęcia i logo, `img/fb/`: zdjęcia z postów (zapisuje je automat)
 - `data/facebook.json`: posty z Facebooka (zapisuje je automat)
 - `scripts/fetch_facebook.py` i `.github/workflows/facebook.yml`: automat pobierający posty
 
 ## Facebook: jak to działa
-Co 4 godziny GitHub Action pyta Graph API o ostatnie posty strony, zmniejsza zdjęcia,
-zapisuje je w `img/fb/` i tworzy `data/facebook.json`. Strona czyta ten plik i układa
-z niego karty. Token leży w sekretach GitHuba, więc nikt nie wyciągnie go z kodu strony,
-a odwiedzający nie ładują skryptów Facebooka.
+Sekcja "Nowości prosto z naszego Facebooka" pokazuje profil w telefonie i działa od razu,
+bez żadnej konfiguracji: wczytuje oficjalną wtyczkę strony Facebooka (okładka, nazwa, posty).
 
-Dopóki w `data/facebook.json` nie ma postów, sekcja pokazuje okno Facebooka
-wczytywane dopiero po kliknięciu (oficjalna wtyczka strony).
+Opcjonalnie możesz włączyć własny feed przez Graph API. Wtedy co 4 godziny GitHub Action
+pobiera ostatnie posty, zmniejsza zdjęcia, zapisuje je w `img/fb/` i tworzy `data/facebook.json`.
+Telefon pokazuje wtedy posty w stylu strony, ładuje się szybciej i nie wczytuje skryptów
+ani plików cookie Facebooka. Token leży w sekretach GitHuba, nie w kodzie strony.
+Strona sama wybiera wersję: są posty w `data/facebook.json`, to własny feed, nie ma, to wtyczka.
 
-## Facebook: jednorazowa konfiguracja (ok. 15 minut)
+## Facebook: konfiguracja własnego feedu (opcjonalna, ok. 15 minut)
 1. **Dostęp do strony.** Właściciel dodaje Cię na stronie Meble Grosman:
    Ustawienia > Dostęp do strony > Dodaj nową osobę. Wystarczy dostęp częściowy.
 2. **Aplikacja Meta.** developers.facebook.com > Moje aplikacje > Utwórz aplikację.
@@ -47,6 +48,8 @@ wczytywane dopiero po kliknięciu (oficjalna wtyczka strony).
 - **Czerwony przebieg w Actions** (GitHub wyśle maila). Najczęściej token przestał działać,
   np. po zmianie hasła właściciela albo odebraniu dostępu. Wygeneruj nowy (kroki 3 do 6).
   Do tego czasu strona pokazuje ostatnie pobrane posty.
+- **W telefonie nic nie widać (wersja z wtyczką).** Część blokerów reklam ukrywa wtyczki
+  Facebooka. Na zwykłej przeglądarce posty się pokażą, a własny feed przez API jest na to odporny.
 - **Błąd 403 przy `git push`.** Settings > Actions > General > Workflow permissions >
   "Read and write permissions".
 - **W aplikacji włączone "Require App Secret".** Dodaj drugi sekret `FB_APP_SECRET`.
@@ -54,4 +57,4 @@ wczytywane dopiero po kliknięciu (oficjalna wtyczka strony).
 
 ## Podmiana zdjęć
 Zdjęcia w `img/` mają 414x414 px. Najlepiej podmienić je na oryginały (min. 1200 px) pod tymi samymi nazwami.
-Slajdy w hero ustawia się w `js/main.js` (tablica `slides`).
+Realizacje pokazywane w szafce w hero ustawia się w `js/main.js` (tablica `slides`).
