@@ -7,7 +7,7 @@
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   /* ---------- Header ---------- */
-  const top = $("#top");
+  const top = $("#naglowek");
   const onScroll = () => top.classList.toggle("is-scrolled", window.scrollY > 8);
   onScroll();
   window.addEventListener("scroll", onScroll, { passive: true });
@@ -20,6 +20,14 @@
     burger.setAttribute("aria-label", open ? "Zamknij menu" : "Otwórz menu");
   };
   burger.addEventListener("click", () => setMenu(!nav.classList.contains("is-open")));
+
+  // logo: płynny powrót na samą górę strony głównej (bez JS link po prostu ją przeładuje)
+  $(".brand").addEventListener("click", (e) => {
+    e.preventDefault();
+    setMenu(false);
+    window.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" });
+    if (location.hash) history.replaceState(null, "", location.pathname + location.search);
+  });
   $$("a", nav).forEach((a) => a.addEventListener("click", () => setMenu(false)));
   document.addEventListener("keydown", (e) => { if (e.key === "Escape") setMenu(false); });
 
