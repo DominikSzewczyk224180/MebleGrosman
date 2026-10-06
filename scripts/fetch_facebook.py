@@ -5,6 +5,8 @@ i zapisuje je jako statyczne pliki dla strony:
 
     data/facebook.json   lista postów (tekst, data, link, zdjęcia)
     img/fb/*.webp        zdjęcia z postów, zmniejszone i skompresowane
+    data/instagram.json  ostatnie posty z Instagrama (jeśli konto IG jest firmowe,
+    img/ig/*.webp        połączone ze stroną na FB, a token ma uprawnienie instagram_basic)
 
 Uruchamiane przez GitHub Action (.github/workflows/facebook.yml).
 Token strony leży w sekretach repozytorium i nigdy nie trafia do przeglądarki.
@@ -36,6 +38,10 @@ ROOT = Path(__file__).resolve().parent.parent
 DATA_FILE = ROOT / "data" / "facebook.json"
 IMG_DIR = ROOT / "img" / "fb"
 IMG_PREFIX = "img/fb/"
+IG_FILE = ROOT / "data" / "instagram.json"
+IG_DIR = ROOT / "img" / "ig"
+IG_PROFILE = "https://www.instagram.com/meblenawymiar_dombezchemii/"
+IG_POSTS = 6
 
 GRAPH = "https://graph.facebook.com/" + os.environ.get("FB_GRAPH_VERSION", "v26.0")
 PAGE_URL = "https://www.facebook.com/meblegrosman"
@@ -99,6 +105,24 @@ def graph(path: str, **params) -> dict:
     return http_json(f"{GRAPH}/{path}?{query}")
 
 
+def graph_soft(path: str, **params) -> dict | None:
+    """Jak graph(), ale przy błędzie zwraca None zamiast przerywać (używane dla Instagrama)."""
+    query = urllib.parse.urlencode({**params, **auth_params()})
+    req = urllib.request.Request(f"{GRAPH}/{path}?{query}", headers={"User-Agent": "meble-grosman-site/1.0"})
+    try:
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            return json.load(resp)
+    except urllib.error.HTTPError as err:
+        try:
+            msg = json.loads(err.read().decode("utf-8", "replace")).get("error", {}).get("message", "")
+        except Exception:
+            msg = str(err.code)
+        print(f"  Instagram: {msg}")
+    except urllib.error.URLError as err:
+        print(f"  Instagram: brak połączenia ({err.reason})")
+    return None
+
+
 def clean_text(text: str | None) -> str:
     text = (text or "").replace("\r\n", "\n").strip()
     # hashtagi doklejone na końcu wpisu nic nie wnoszą na stronie
@@ -154,7 +178,7 @@ def safe_id(post_id: str) -> str:
     return re.sub(r"[^\w-]", "_", post_id)
 
 
-def save_image(url: str, dest: Path) -> tuple[int, int]:
+def save_image(url: str, dest: Path, max_side: int = MAX_SIDE) -> tuple[int, int]:
     """Pobiera zdjęcie, obraca wg EXIF, zmniejsza i zapisuje jako WebP. Istniejących nie pobiera drugi raz."""
     if dest.exists():
         with Image.open(dest) as im:
@@ -164,7 +188,7 @@ def save_image(url: str, dest: Path) -> tuple[int, int]:
         raw = resp.read()
     with Image.open(io.BytesIO(raw)) as im:
         im = ImageOps.exif_transpose(im).convert("RGB")
-        im.thumbnail((MAX_SIDE, MAX_SIDE), Image.LANCZOS)
+        im.thumbnail((max_side, max_side), Image.LANCZOS)
         dest.parent.mkdir(parents=True, exist_ok=True)
         im.save(dest, "WEBP", quality=WEBP_QUALITY, method=6)
         return im.size
@@ -228,49 +252,92 @@ def collect_posts() -> list[dict]:
     return posts
 
 
+def write_if_changed(path: Path, key: str, payload_items: list, extra: dict) -> None:
+    """Zapisuje JSON tylko przy zmianie albo raz na REFRESH_DAYS (żeby harmonogram GitHuba nie zasnął)."""
+    old = {}
+    if path.exists():
+        try:
+            old = json.loads(path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            old = {}
+    today = date.today()
+    stale = True
+    if old.get("updated"):
+        try:
+            stale = (today - date.fromisoformat(old["updated"])).days >= REFRESH_DAYS
+        except ValueError:
+            stale = True
+    if old.get(key) != payload_items or stale:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps({"updated": today.isoformat(), **extra, key: payload_items},
+                                   ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        print(f"Zapisano {path.relative_to(ROOT)}")
+    else:
+        print(f"Bez zmian: {path.relative_to(ROOT)}")
+
+
+def clean_dir(folder: Path, keep: set[str]) -> None:
+    if folder.exists():
+        for f in folder.glob("*.webp"):
+            if f.name not in keep:
+                f.unlink()
+                print(f"  usunięto {f.relative_to(ROOT)}")
+
+
+def collect_instagram() -> list[dict] | None:
+    page = graph_soft("me", fields="instagram_business_account{id,username}")
+    ig = (page or {}).get("instagram_business_account")
+    if not ig:
+        print("Instagram: brak połączonego konta firmowego albo uprawnienia instagram_basic, pomijam.")
+        return None
+    media = graph_soft(f"{ig['id']}/media",
+                       fields="id,caption,media_type,media_url,thumbnail_url,permalink,timestamp", limit=12)
+    if not media:
+        return None
+    posts = []
+    for m in media.get("data", []):
+        is_video = m.get("media_type") == "VIDEO"
+        url = m.get("thumbnail_url") if is_video else m.get("media_url")
+        if not url:
+            continue
+        name = f"{safe_id(m['id'])}.webp"
+        try:
+            save_image(url, IG_DIR / name, max_side=640)
+        except Exception as exc:
+            print(f"  Instagram: pominięto {name}: {exc}")
+            continue
+        link = m.get("permalink") or ""
+        posts.append({
+            "id": m["id"],
+            "date": iso_date(m.get("timestamp")),
+            "link": link if re.match(r"^https://(www\.)?instagram\.com/", link) else IG_PROFILE,
+            "image": "img/ig/" + name,
+            "video": is_video,
+        })
+        if len(posts) >= IG_POSTS:
+            break
+    print(f"Instagram: {len(posts)} postów")
+    return posts
+
+
 def main() -> None:
     posts = collect_posts()
     print(f"Postów ze zdjęciami: {len(posts)}")
-
-    old = {}
-    if DATA_FILE.exists():
-        try:
-            old = json.loads(DATA_FILE.read_text(encoding="utf-8"))
-        except json.JSONDecodeError:
-            old = {}
-
-    if not posts:
+    if posts:
+        write_if_changed(DATA_FILE, "posts", posts, {"page": PAGE_URL})
+        clean_dir(IMG_DIR, {Path(im["src"]).name for p in posts for im in p["images"]})
+    else:
         # nie kasujemy ostatnich dobrych danych z powodu chwilowego problemu
         print("API nie zwróciło postów ze zdjęciami, zostawiam poprzednie dane.")
-        return
 
-    today = date.today()
-    last = old.get("updated")
-    stale = True
-    if last:
-        try:
-            stale = (today - date.fromisoformat(last)).days >= REFRESH_DAYS
-        except ValueError:
-            stale = True
-
-    if old.get("posts") != posts or stale:
-        DATA_FILE.parent.mkdir(parents=True, exist_ok=True)
-        DATA_FILE.write_text(
-            json.dumps({"updated": today.isoformat(), "page": PAGE_URL, "posts": posts},
-                       ensure_ascii=False, indent=2) + "\n",
-            encoding="utf-8",
-        )
-        print("Zapisano data/facebook.json")
-    else:
-        print("Bez zmian w postach.")
-
-    # usuń zdjęcia postów, które wypadły z listy
-    keep = {Path(im["src"]).name for p in posts for im in p["images"]}
-    if IMG_DIR.exists():
-        for f in IMG_DIR.glob("*.webp"):
-            if f.name not in keep:
-                f.unlink()
-                print(f"  usunięto {f.name}")
+    try:
+        ig_posts = collect_instagram()
+    except Exception as exc:  # Instagram nigdy nie psuje aktualizacji Facebooka
+        print(f"Instagram: błąd {exc}")
+        ig_posts = None
+    if ig_posts:
+        write_if_changed(IG_FILE, "posts", ig_posts, {"profile": IG_PROFILE})
+        clean_dir(IG_DIR, {Path(p["image"]).name for p in ig_posts})
 
 
 if __name__ == "__main__":

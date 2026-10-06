@@ -277,7 +277,7 @@
       </div>
     </section>
 
-    <!-- OFERTA -->
+    <!-- OFERTA: zakładki z kategoriami, opis i pokaz zdjęć z danej kategorii (zdjęcia z data/realizacje.json) -->
     <section class="offer" id="oferta">
       <div class="wrap">
         <div class="section-head">
@@ -285,54 +285,41 @@
           <p>Każdy mebel powstaje od zera, pod konkretne wymiary, ściany i sposób, w jaki z niego korzystasz.</p>
         </div>
 
-        <div class="offer__grid">
-          <ul class="offer__list" id="offerList">
-            <li>
-              <button class="offer__item is-active" data-img="img/kuchnia-grafit-dab.webp" data-alt="Kuchnia w kształcie L: grafitowe fronty, dąb i LED">
-                <span class="offer__name">Kuchnie</span>
-                <span class="offer__desc">W zabudowie, w kształcie L i U, z wyspą lub półwyspem. Fronty w macie, połysku, okleinie drewnopodobnej i lameli.</span>
-              </button>
-              <img class="offer__thumb" src="img/kuchnia-grafit-dab.webp" alt="" loading="lazy" width="414" height="414">
-            </li>
-            <li>
-              <button class="offer__item" data-img="img/szafa-dab.webp" data-alt="Szafa wnękowa z białymi frontami i dębowym bokiem">
-                <span class="offer__name">Szafy i garderoby</span>
-                <span class="offer__desc">Szafy wnękowe i wolnostojące, od podłogi do sufitu, z wnętrzem rozplanowanym pod Twoje rzeczy.</span>
-              </button>
-              <img class="offer__thumb" src="img/szafa-dab.webp" alt="" loading="lazy" width="414" height="414">
-            </li>
-            <li>
-              <button class="offer__item" data-img="img/przedpokoj-konsola.webp" data-alt="Przedpokój z dębową ścianą i konsolą">
-                <span class="offer__name">Przedpokoje</span>
-                <span class="offer__desc">Zabudowy wejścia, konsole, panele lamelowe i ukryte schowki tam, gdzie liczy się każdy centymetr.</span>
-              </button>
-              <img class="offer__thumb" src="img/przedpokoj-konsola.webp" alt="" loading="lazy" width="414" height="414">
-            </li>
-            <li>
-              <button class="offer__item" data-img="img/lazienka-szafka.webp" data-alt="Szafka łazienkowa z umywalką nablatową">
-                <span class="offer__name">Łazienki</span>
-                <span class="offer__desc">Szafki pod umywalkę, wysokie słupki i zabudowy stelaża WC, odporne na wilgoć.</span>
-              </button>
-              <img class="offer__thumb" src="img/lazienka-szafka.webp" alt="" loading="lazy" width="414" height="414">
-            </li>
-            <li>
-              <button class="offer__item" data-img="img/salon-witryny-czarne.webp" data-alt="Czarne witryny z ryflowanym szkłem">
-                <span class="offer__name">Salon i RTV</span>
-                <span class="offer__desc">Szafki RTV, witryny z podświetleniem i ściany z lameli, które spinają całe wnętrze.</span>
-              </button>
-              <img class="offer__thumb" src="img/salon-witryny-czarne.webp" alt="" loading="lazy" width="414" height="414">
-            </li>
-            <li>
-              <button class="offer__item" data-img="img/schody-zabudowa.webp" data-alt="Zabudowa pod schodami z szufladami i półką na książki">
-                <span class="offer__name">Schody i biura</span>
-                <span class="offer__desc">Zabudowy pod schodami, biurka i meble do firm. Jeśli masz nietypowy pomysł, porozmawiajmy.</span>
-              </button>
-              <img class="offer__thumb" src="img/schody-zabudowa.webp" alt="" loading="lazy" width="414" height="414">
-            </li>
-          </ul>
+        <div class="tabs" role="tablist" aria-label="Rodzaje mebli" id="offerTabs">
+          <button class="tab" role="tab" id="tab-kuchnie" data-cat="kuchnie" aria-selected="true" aria-controls="offerPanel">Kuchnie</button>
+          <button class="tab" role="tab" id="tab-szafy" data-cat="szafy" aria-selected="false" aria-controls="offerPanel" tabindex="-1">Szafy i zabudowy</button>
+          <button class="tab" role="tab" id="tab-lazienki" data-cat="lazienki" aria-selected="false" aria-controls="offerPanel" tabindex="-1">Łazienki</button>
+          <button class="tab" role="tab" id="tab-salon" data-cat="salon" aria-selected="false" aria-controls="offerPanel" tabindex="-1">Salon i RTV</button>
+          <button class="tab" role="tab" id="tab-inne" data-cat="inne" aria-selected="false" aria-controls="offerPanel" tabindex="-1">Schody i biura</button>
+        </div>
 
-          <div class="offer__preview" aria-hidden="true">
-            <img id="offerPreview" src="img/kuchnia-grafit-dab.webp" alt="" width="414" height="414">
+        <div class="offer__panel" id="offerPanel" role="tabpanel" aria-labelledby="tab-kuchnie">
+          <div class="offer__text" id="offerText">
+            <h3 id="offerTitle">Kuchnie na wymiar</h3>
+            <p id="offerDesc">Projektujemy kuchnie pod konkretne pomieszczenie: w zabudowie, w kształcie litery L i U, z wyspą albo półwyspem. Wykorzystujemy każdy centymetr, także pod skosami, a fronty, blaty i oświetlenie dobieramy do stylu wnętrza.</p>
+            <ul class="offer__points" id="offerPoints">
+              <li>Fronty matowe, w połysku, drewnopodobne i lamelowe</li>
+              <li>Wysokie słupki na piekarnik, lodówkę i schowki</li>
+              <li>Podświetlenie LED pod szafkami i w witrynach</li>
+            </ul>
+            <button class="btn btn--ghost" id="offerMore" type="button">Zobacz wszystkie kuchnie</button>
+          </div>
+
+          <div class="show" id="offerShow">
+            <div class="show__frame" aria-live="off">
+              <figure class="show__slide is-active"><img alt="" width="414" height="414"><figcaption></figcaption></figure>
+              <figure class="show__slide"><img alt="" width="414" height="414"><figcaption></figcaption></figure>
+            </div>
+            <div class="show__bar">
+              <span class="show__count" id="showCount"></span>
+              <span class="show__progress" aria-hidden="true"><i id="showProgress"></i></span>
+              <button class="arrow arrow--small" id="showPrev" type="button" aria-label="Poprzednie zdjęcie">
+                <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M15 5l-7 7 7 7" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+              <button class="arrow arrow--small" id="showNext" type="button" aria-label="Następne zdjęcie">
+                <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -356,35 +343,15 @@
           </div>
         </div>
 
-        <ul class="gallery" id="gallery">
-          <li class="g-wide" data-cat="kuchnie"><button><img src="img/kuchnia-grafit-dab.webp" alt="Kuchnia w kształcie L: grafitowe fronty, dąb i podświetlenie LED" loading="lazy" width="414" height="414"></button></li>
-          <li data-cat="kuchnie"><button><img src="img/kuchnia-czarna-marmur.webp" alt="Kuchnia z czarnymi matowymi szafkami, blatem w marmurze i frontami w orzechu" loading="lazy" width="414" height="414"></button></li>
-          <li data-cat="lazienki"><button><img src="img/lazienka-zabudowa.webp" alt="Łazienka z dębową zabudową WC i regałami" loading="lazy" width="414" height="414"></button></li>
-          <li data-cat="kuchnie"><button><img src="img/kuchnia-biala-polysk-led.webp" alt="Kuchnia z białymi frontami w połysku, dębową blendą i LED" loading="lazy" width="414" height="414"></button></li>
-          <li data-cat="szafy"><button><img src="img/przedpokoj-konsola.webp" alt="Przedpokój z dębową ścianą i konsolą" loading="lazy" width="414" height="414"></button></li>
-          <li class="g-wide g-right" data-cat="salon"><button><img src="img/salon-witryny-czarne.webp" alt="Czarne witryny z ryflowanym szkłem i podświetleniem" loading="lazy" width="414" height="414"></button></li>
-          <li data-cat="kuchnie"><button><img src="img/kuchnia-czarna-dab.webp" alt="Kuchnia z czarnymi matowymi frontami i dębem, podświetlany regał" loading="lazy" width="414" height="414"></button></li>
-          <li data-cat="szafy"><button><img src="img/sypialnia-panele.webp" alt="Sypialnia: zabudowa nad łóżkiem i tapicerowane panele" loading="lazy" width="414" height="414"></button></li>
-          <li data-cat="kuchnie"><button><img src="img/kuchnia-cegla.webp" alt="Kuchnia w dębie z czarnym blatem przy ścianie z cegły" loading="lazy" width="414" height="414"></button></li>
-          <li data-cat="inne"><button><img src="img/schody-zabudowa.webp" alt="Zabudowa pod schodami z szufladami i półką na książki" loading="lazy" width="414" height="414"></button></li>
-          <li class="g-wide" data-cat="kuchnie"><button><img src="img/kuchnia-turkus.webp" alt="Kuchnia z turkusowymi frontami i dębowym blatem" loading="lazy" width="414" height="414"></button></li>
-          <li data-cat="salon"><button><img src="img/salon-rtv.webp" alt="Ściana RTV w salonie z białą szafką i lamelami" loading="lazy" width="414" height="414"></button></li>
-          <li data-cat="kuchnie"><button><img src="img/kuchnia-grafit-skos.webp" alt="Grafitowa kuchnia ze słupkiem pod skosem dachu" loading="lazy" width="414" height="414"></button></li>
-          <li data-cat="lazienki"><button><img src="img/lazienka-szafka.webp" alt="Szafka łazienkowa z szufladami i umywalką nablatową" loading="lazy" width="414" height="414"></button></li>
-          <li data-cat="kuchnie"><button><img src="img/kuchnia-witryna-orzech.webp" alt="Kuchnia z półwyspem i podświetlaną witryną w orzechu" loading="lazy" width="414" height="414"></button></li>
-          <li class="g-wide g-right" data-cat="kuchnie" data-more><button><img src="img/kuchnia-lamele-dab.webp" alt="Kuchnia z lamelowymi frontami i dębowym blatem" loading="lazy" width="414" height="414"></button></li>
-          <li data-cat="kuchnie" data-more><button><img src="img/kuchnia-szara-okap.webp" alt="Szara kuchnia z czarnym okapem i ciemnym blatem" loading="lazy" width="414" height="414"></button></li>
-          <li data-cat="salon" data-more><button><img src="img/salon-witryna.webp" alt="Witryna z podświetleniem między lamelowymi frontami" loading="lazy" width="414" height="414"></button></li>
-          <li data-cat="inne" data-more><button><img src="img/biurko-lamele.webp" alt="Narożne biurko z lamelowym panelem" loading="lazy" width="414" height="414"></button></li>
-          <li data-cat="szafy" data-more><button><img src="img/szafa-dab.webp" alt="Szafa z białymi frontami i dębowym bokiem" loading="lazy" width="414" height="414"></button></li>
-          <li data-cat="kuchnie" data-more><button><img src="img/kuchnia-biala-dab-led.webp" alt="Biała kuchnia z dębowym blatem i podświetleniem LED" loading="lazy" width="414" height="414"></button></li>
-          <li data-cat="szafy" data-more><button><img src="img/przedpokoj-lamele.webp" alt="Przedpokój z lamelową zabudową i półką" loading="lazy" width="414" height="414"></button></li>
-          <li data-cat="kuchnie" data-more><button><img src="img/kuchnia-ciemna-wieczor.webp" alt="Kuchnia z ciemnymi szafkami górnymi i dębowymi dolnymi" loading="lazy" width="414" height="414"></button></li>
-          <li data-cat="kuchnie" data-more><button><img src="img/kuchnia-szara-klasyczna.webp" alt="Szara kuchnia w stylu klasycznym z witrynkami" loading="lazy" width="414" height="414"></button></li>
+        <ul class="gallery" id="gallery" aria-busy="true">
+          <li class="g-wide g-skeleton" aria-hidden="true"></li>
+          <li class="g-skeleton" aria-hidden="true"></li><li class="g-skeleton" aria-hidden="true"></li>
+          <li class="g-skeleton" aria-hidden="true"></li><li class="g-skeleton" aria-hidden="true"></li>
         </ul>
-        <div class="gallery__more">
-          <button class="btn btn--ghost" id="galleryMore" type="button">Pokaż więcej realizacji (9)</button>
+        <div class="gallery__more" hidden>
+          <button class="btn btn--ghost" id="galleryMore" type="button">Pokaż więcej realizacji</button>
         </div>
+        <noscript><p class="gallery__noscript">Galeria wymaga włączonego JavaScriptu. Nasze realizacje znajdziesz też na <a href="https://www.facebook.com/meblegrosman">Facebooku</a>.</p></noscript>
       </div>
     </section>
 
@@ -404,6 +371,16 @@
             </span>
             <a class="btn btn--small profile__follow" href="https://www.facebook.com/meblegrosman" target="_blank" rel="noopener">Obserwuj</a>
           </div>
+
+          <a class="profile profile--ig" href="https://www.instagram.com/meblenawymiar_dombezchemii/" target="_blank" rel="noopener">
+            <span class="profile__avatar"><img src="img/logo-mark.png" alt="" width="40" height="45"></span>
+            <span class="profile__who">
+              <strong>Instagram</strong>
+              <span>@meblenawymiar_<wbr>dombezchemii</span>
+            </span>
+            <span class="btn btn--small btn--ghost profile__follow">Zobacz</span>
+          </a>
+          <ul class="ig-grid" id="igGrid" hidden></ul>
 
           <p class="social__note">Wolisz zadzwonić? <a href="tel:+48502307043">502 307 043</a>, od poniedziałku do soboty.</p>
         </div>
@@ -437,6 +414,7 @@
               </span>
             </a>
           </div>
+          <p class="social__hint" id="fbHint" hidden>Film nie startuje w okienku? <a href="https://www.facebook.com/meblegrosman" target="_blank" rel="noopener">Obejrzyj go na Facebooku</a></p>
         </div>
       </div>
     </section>
@@ -452,7 +430,7 @@
           <li>
             <span class="steps__no" aria-hidden="true">1</span>
             <h3>Rozmowa i pomiar</h3>
-            <p>Dzwonisz lub przychodzisz do nas. Ustalamy, czego potrzebujesz, i przyjeżdżamy zmierzyć pomieszczenie.</p>
+            <p>Dzwonisz lub przychodzisz do nas. Ustalamy, czego potrzebujesz, i przyjeżdżamy zmierzyć pomieszczenie, także do klientów spoza okolicy.</p>
           </li>
           <li>
             <span class="steps__no" aria-hidden="true">2</span>
@@ -523,7 +501,7 @@
       </div>
       <p class="foot__meta">ul. Władysława Andersa 6, 44-370 Pszów<br>
         <a href="tel:+48502307043">502 307 043</a>, <a href="mailto:sklepgrosman@gmail.com">sklepgrosman@gmail.com</a></p>
-      <p class="foot__copy">© <span id="year">2026</span> Meble Grosman</p>
+      <p class="foot__copy">© <span id="year">2026</span> Meble Grosman <a class="foot__admin" href="admin/" rel="nofollow">Panel</a></p>
     </div>
   </footer>
 

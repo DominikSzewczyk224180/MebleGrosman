@@ -6,6 +6,22 @@
   const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+  const el = (tag, cls, text) => {
+    const node = document.createElement(tag);
+    if (cls) node.className = cls;
+    if (text != null) node.textContent = text;
+    return node;
+  };
+
+  const plural = (n, forms) => {
+    const n10 = n % 10, n100 = n % 100;
+    if (n === 1) return forms[0];
+    if (n10 >= 2 && n10 <= 4 && (n100 < 12 || n100 > 14)) return forms[1];
+    return forms[2];
+  };
+
+  const PLAY_SVG = '<svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg>';
+
   /* ---------- Header ---------- */
   const top = $("#naglowek");
   const onScroll = () => top.classList.toggle("is-scrolled", window.scrollY > 8);
@@ -106,69 +122,7 @@
     new IntersectionObserver(([en]) => { heroVisible = en.isIntersecting; }).observe(kitchen);
   }
 
-  /* ---------- Oferta ---------- */
-  const offerItems = $$(".offer__item");
-  const preview = $("#offerPreview");
-  const canHover = window.matchMedia("(hover: hover)").matches;
-  let swapTimer = null;
-
-  const activate = (item) => {
-    if (item.classList.contains("is-active")) return;
-    offerItems.forEach((o) => {
-      o.classList.toggle("is-active", o === item);
-      o.setAttribute("aria-expanded", String(o === item));
-    });
-    const src = item.dataset.img;
-    if (reduceMotion) { preview.src = src; return; }
-    preview.classList.add("is-fading");
-    clearTimeout(swapTimer);
-    swapTimer = setTimeout(() => {
-      preview.src = src;
-      const show = () => preview.classList.remove("is-fading");
-      if (preview.complete) show(); else preview.onload = show;
-    }, 180);
-  };
-
-  offerItems.forEach((item) => {
-    item.setAttribute("aria-expanded", String(item.classList.contains("is-active")));
-    item.addEventListener("click", () => activate(item));
-    if (canHover) item.addEventListener("mouseenter", () => activate(item));
-    const i = new Image(); i.src = item.dataset.img;
-  });
-
-  /* ---------- Realizacje: filtry ---------- */
-  const gallery = $("#gallery");
-  const tiles = $$("li", gallery);
-  const chips = $$(".chip");
-
-  const moreWrap = $(".gallery__more");
-  const moreBtn = $("#galleryMore");
-  moreBtn.addEventListener("click", () => {
-    gallery.classList.add("is-expanded");
-    moreWrap.hidden = true;
-    // fokus na pierwsze nowo odsłonięte zdjęcie
-    const first = $("li[data-more] button", gallery);
-    if (first) first.focus({ preventScroll: true });
-  });
-
-  chips.forEach((chip) => {
-    chip.addEventListener("click", () => {
-      const f = chip.dataset.filter;
-      chips.forEach((c) => {
-        const on = c === chip;
-        c.classList.toggle("is-active", on);
-        c.setAttribute("aria-pressed", String(on));
-      });
-      gallery.classList.remove("is-filtering");
-      void gallery.offsetWidth;
-      tiles.forEach((t) => { t.hidden = !(f === "all" || t.dataset.cat === f); });
-      gallery.classList.toggle("is-filtered", f !== "all");
-      moreWrap.hidden = f !== "all" || gallery.classList.contains("is-expanded");
-      gallery.classList.add("is-filtering");
-    });
-  });
-
-  /* ---------- Lightbox (wspólny dla galerii i postów z Facebooka) ---------- */
+  /* ---------- Lightbox (galeria, posty z Facebooka, filmy) ---------- */
   const lightbox = (() => {
     const box = $("#lightbox");
     const img = $("#lbImg");
@@ -178,50 +132,72 @@
     const prev = $("#lbPrev");
     const next = $("#lbNext");
     const supported = typeof box.showModal === "function";
+    let video = null;
     let items = [];
     let index = 0;
     let lastFocus = null;
 
+    const stopVideo = () => {
+      if (!video) return;
+      video.pause();
+      video.removeAttribute("src");
+      video.load();
+      video.hidden = true;
+    };
+
     const show = (i) => {
       index = (i + items.length) % items.length;
       const it = items[index];
-      img.classList.toggle("is-square", Boolean(it.square));
-      img.src = it.src;
-      img.alt = it.alt || "";
+      stopVideo();
+      if (it.video) {
+        if (!video) {
+          video = document.createElement("video");
+          video.controls = true;
+          video.playsInline = true;
+          video.setAttribute("playsinline", "");
+          video.preload = "metadata";
+          img.after(video);
+        }
+        img.hidden = true;
+        video.hidden = false;
+        video.poster = it.poster || "";
+        video.src = it.video;
+        video.play().catch(() => { /* przeglądarka czeka na kliknięcie play */ });
+      } else {
+        img.hidden = false;
+        img.classList.toggle("is-square", Boolean(it.square));
+        img.src = it.src;
+        img.alt = it.alt || "";
+        img.style.animation = "none";
+        void img.offsetWidth;
+        img.style.animation = "";
+      }
       cap.textContent = it.caption || "";
       count.textContent = items.length > 1 ? `${index + 1} / ${items.length}` : "";
-      if (it.link) {
-        link.href = it.link;
-        link.hidden = false;
-      } else {
-        link.hidden = true;
-      }
+      if (it.link) { link.href = it.link; link.hidden = false; } else { link.hidden = true; }
       const single = items.length < 2;
       prev.style.visibility = single ? "hidden" : "";
       next.style.visibility = single ? "hidden" : "";
-      img.style.animation = "none";
-      void img.offsetWidth;
-      img.style.animation = "";
-      // wczytaj sąsiednie zdjęcia, żeby przewijanie było płynne
+      // wczytaj tylko sąsiednie zdjęcia, nie całą galerię
       [index + 1, index - 1].forEach((k) => {
         const n = items[(k + items.length) % items.length];
-        if (n) { const pre = new Image(); pre.src = n.src; }
+        if (n && n.src && !n.video) { const pre = new Image(); pre.src = n.src; }
       });
     };
 
     const open = (list, i = 0) => {
       if (!list.length) return;
-      if (!supported) { window.open(list[i].src, "_blank", "noopener"); return; }
+      if (!supported) { window.open(list[i].video || list[i].src, "_blank", "noopener"); return; }
       items = list;
       lastFocus = document.activeElement;
-      show(i);
+      show(Math.max(0, i));
       box.showModal();
     };
 
     $("#lbClose").addEventListener("click", () => box.close());
     prev.addEventListener("click", () => show(index - 1));
     next.addEventListener("click", () => show(index + 1));
-    box.addEventListener("close", () => { if (lastFocus) lastFocus.focus(); });
+    box.addEventListener("close", () => { stopVideo(); if (lastFocus) lastFocus.focus(); });
     box.addEventListener("click", (e) => { if (e.target === box) box.close(); });
     box.addEventListener("keydown", (e) => {
       if (items.length < 2) return;
@@ -229,36 +205,314 @@
       if (e.key === "ArrowRight") show(index + 1);
     });
 
-    // przesuwanie palcem
     let sx = null;
     box.addEventListener("touchstart", (e) => { sx = e.touches[0].clientX; }, { passive: true });
     box.addEventListener("touchend", (e) => {
       if (sx === null || items.length < 2) { sx = null; return; }
       const dx = e.changedTouches[0].clientX - sx;
-      if (Math.abs(dx) > 50) show(index + (dx < 0 ? 1 : -1));
+      if (Math.abs(dx) > 50 && !(e.target instanceof HTMLVideoElement)) show(index + (dx < 0 ? 1 : -1));
       sx = null;
     });
 
     return { open };
   })();
 
-  // galeria realizacji
-  const visibleTiles = () => tiles.filter((t) => t.offsetParent !== null);
-  tiles.forEach((t) => {
-    const btn = $("button", t);
-    const pic = $("img", t);
-    btn.setAttribute("aria-label", "Powiększ: " + pic.alt);
-    btn.addEventListener("click", () => {
-      const list = visibleTiles();
-      lightbox.open(
-        list.map((li) => {
-          const im = $("img", li);
-          return { src: im.currentSrc || im.src, alt: im.alt, caption: im.alt, square: true };
-        }),
-        list.indexOf(t)
-      );
+  /* ---------- Realizacje: dane z data/realizacje.json (edytuje je panel) ----------
+     Do strony trafia tylko pierwsza porcja kafelków, reszta po "Pokaż więcej".
+     Kafelki mają małe miniatury, pełne zdjęcia i filmy ładują się dopiero w powiększeniu. */
+  const CATS = { kuchnie: "Kuchnie", szafy: "Szafy i zabudowy", lazienki: "Łazienki", salon: "Salon", inne: "Inne" };
+  const gallery = $("#gallery");
+  const chips = $$(".chip");
+  const moreWrap = $(".gallery__more");
+  const moreBtn = $("#galleryMore");
+  const PAGE_CELLS = 24;
+  let realizacje = [];
+  let filter = "all";
+  let rendered = 0;
+
+  const mediaPath = (p) => typeof p === "string" && /^(img|video)\/[\w./-]+$/.test(p) && !p.includes("..");
+  const validItem = (it) => it && (it.type === "image" || it.type === "video") && CATS[it.cat] && mediaPath(it.src);
+  const listFor = (f) => realizacje.filter((it) => f === "all" || it.cat === f);
+
+  const setSources = (img, it, sizes) => {
+    if (it.thumb && it.thumb !== it.src && it.tw && it.w && mediaPath(it.thumb)) {
+      img.srcset = `${it.thumb} ${it.tw}w, ${it.src} ${it.w}w`;
+      img.sizes = sizes;
+    }
+    img.src = it.type === "image" ? (it.thumb && mediaPath(it.thumb) ? it.thumb : it.src) : it.poster;
+  };
+
+  const lbItem = (it) => it.type === "video"
+    ? { video: it.src, poster: mediaPath(it.poster) ? it.poster : "", caption: it.title || "", alt: it.title || "" }
+    : { src: it.src, alt: it.title || "", caption: it.title || "", square: (it.w || 0) < 800 };
+
+  const openFromGallery = (it) => {
+    const list = listFor(filter);
+    lightbox.open(list.map(lbItem), list.indexOf(it));
+  };
+
+  const tileFor = (it, wideIndex) => {
+    const li = el("li");
+    li.dataset.cat = it.cat;
+    const wide = filter === "all" && it.featured;
+    if (wide) {
+      li.classList.add("g-wide");
+      if (wideIndex % 2 === 1) li.classList.add("g-right");
+    }
+    const btn = el("button");
+    btn.type = "button";
+    if (typeof it.color === "string" && /^#[0-9a-f]{6}$/i.test(it.color)) btn.style.backgroundColor = it.color;
+    const label = it.title || CATS[it.cat];
+    btn.setAttribute("aria-label", (it.type === "video" ? "Odtwórz film: " : "Powiększ: ") + label);
+    if (it.type === "image" || mediaPath(it.poster)) {
+      const img = el("img", "is-loading");
+      img.alt = label;
+      img.loading = "lazy";
+      img.decoding = "async";
+      img.width = it.tw || it.w || 414;
+      img.height = it.th || it.h || 414;
+      img.addEventListener("load", () => img.classList.remove("is-loading"), { once: true });
+      img.addEventListener("error", () => img.classList.remove("is-loading"), { once: true });
+      setSources(img, it, wide ? "(max-width: 640px) 100vw, 600px" : "(max-width: 640px) 50vw, 300px");
+      btn.appendChild(img);
+    }
+    if (it.type === "video") {
+      const play = el("span", "g-play");
+      const circle = el("span");
+      circle.innerHTML = PLAY_SVG;
+      play.appendChild(circle);
+      btn.appendChild(play);
+    }
+    btn.addEventListener("click", () => openFromGallery(it));
+    li.appendChild(btn);
+    return li;
+  };
+
+  const renderNext = () => {
+    const list = listFor(filter);
+    let cells = 0;
+    let wideCount = $$(".g-wide", gallery).length;
+    const frag = document.createDocumentFragment();
+    while (rendered < list.length) {
+      const it = list[rendered];
+      const c = filter === "all" && it.featured ? 4 : 1;
+      // porcja kończy się na pełnym rzędzie (4 kolumny), żeby nie zostawały dziury
+      const full = cells >= PAGE_CELLS && cells % 4 === 0;
+      if (cells > 0 && (full || cells + c > PAGE_CELLS + 8)) break;
+      frag.appendChild(tileFor(it, wideCount));
+      if (c === 4) wideCount++;
+      cells += c;
+      rendered++;
+    }
+    gallery.appendChild(frag);
+    const left = list.length - rendered;
+    moreWrap.hidden = left <= 0;
+    moreBtn.textContent = `Pokaż więcej realizacji (${left})`;
+  };
+
+  const renderGallery = () => {
+    gallery.innerHTML = "";
+    rendered = 0;
+    gallery.classList.toggle("is-filtered", filter !== "all");
+    gallery.classList.remove("is-filtering");
+    void gallery.offsetWidth;
+    gallery.classList.add("is-filtering");
+    renderNext();
+    gallery.removeAttribute("aria-busy");
+  };
+
+  const setFilter = (f) => {
+    filter = f;
+    chips.forEach((c) => {
+      const on = c.dataset.filter === f;
+      c.classList.toggle("is-active", on);
+      c.setAttribute("aria-pressed", String(on));
+    });
+    renderGallery();
+  };
+
+  chips.forEach((chip) => chip.addEventListener("click", () => setFilter(chip.dataset.filter)));
+  moreBtn.addEventListener("click", () => {
+    const first = rendered;
+    renderNext();
+    const btn = gallery.children[first] && gallery.children[first].querySelector("button");
+    if (btn) btn.focus({ preventScroll: true });
+  });
+
+  /* ---------- Oferta: zakładki i pokaz zdjęć z danej kategorii ---------- */
+  const OFFER = {
+    kuchnie: {
+      title: "Kuchnie na wymiar",
+      desc: "Projektujemy kuchnie pod konkretne pomieszczenie: w zabudowie, w kształcie litery L i U, z wyspą albo półwyspem. Wykorzystujemy każdy centymetr, także pod skosami, a fronty, blaty i oświetlenie dobieramy do stylu wnętrza.",
+      points: ["Fronty matowe, w połysku, drewnopodobne i lamelowe", "Wysokie słupki na piekarnik, lodówkę i schowki", "Podświetlenie LED pod szafkami i w witrynach"],
+      more: "Zobacz wszystkie kuchnie"
+    },
+    szafy: {
+      title: "Szafy i zabudowy",
+      desc: "Szafy wnękowe i wolnostojące od podłogi do sufitu, zabudowy przedpokoi i sypialni. Wnętrze szafy planujemy pod Twoje rzeczy, a fronty dopasowujemy do reszty mieszkania, żeby wszystko tworzyło jedną całość.",
+      points: ["Szafy wnękowe i garderoby", "Przedpokoje z konsolami i panelami lamelowymi", "Zabudowy nad łóżkiem i wokół niego"],
+      more: "Zobacz szafy i zabudowy"
+    },
+    lazienki: {
+      title: "Meble łazienkowe",
+      desc: "Szafki pod umywalkę, wysokie słupki i zabudowy stelaża WC z materiałów odpornych na wilgoć. Łazienka zyskuje miejsce na wszystko, a przy tym wygląda spokojnie i spójnie.",
+      points: ["Szafki pod umywalkę z szufladami", "Zabudowy stelaża WC z półkami", "Wysokie słupki i regały na ręczniki"],
+      more: "Zobacz łazienki"
+    },
+    salon: {
+      title: "Salon i RTV",
+      desc: "Ściany RTV, szafki, witryny z podświetleniem i zabudowy z lamelami. Robimy meble, które spinają salon w jedną całość i chowają wszystko, co nie musi być na widoku.",
+      points: ["Szafki i ściany RTV", "Witryny z podświetleniem i ryflowanym szkłem", "Panele lamelowe na ścianę"],
+      more: "Zobacz realizacje do salonu"
+    },
+    inne: {
+      title: "Schody, biura i nietypowe projekty",
+      desc: "Zabudowy pod schodami, biurka i meble do firm. Jeśli masz nietypowy pomysł albo trudne miejsce, przyjedziemy, zmierzymy i zaproponujemy rozwiązanie.",
+      points: ["Zabudowy pod schodami z szufladami", "Biurka i meble biurowe", "Projekty na indywidualne zamówienie"],
+      more: "Zobacz schody, biura i inne"
+    }
+  };
+
+  const tabs = $$(".tab", $("#offerTabs"));
+  const offerPanel = $("#offerPanel");
+  const offerText = $("#offerText");
+  const offerTitle = $("#offerTitle");
+  const offerDesc = $("#offerDesc");
+  const offerPoints = $("#offerPoints");
+  const offerMore = $("#offerMore");
+  const showEl = $("#offerShow");
+  const slidesEls = $$(".show__slide", showEl);
+  const showCount = $("#showCount");
+  const showProgress = $("#showProgress");
+  const SLIDE_MS = 4800;
+  let offerCat = "kuchnie";
+  let offerList = [];
+  let offerIndex = 0;
+  let activeSlide = 0;
+  let showVisible = false;
+  let showHover = false;
+
+  showProgress.style.setProperty("--dur", SLIDE_MS + "ms");
+
+  const slidesFor = (cat) => {
+    const imgs = realizacje.filter((it) => it.cat === cat && it.type === "image");
+    return [...imgs.filter((i) => i.featured), ...imgs.filter((i) => !i.featured)].slice(0, 8);
+  };
+
+  const updatePause = () => showEl.classList.toggle("is-paused", showHover || !showVisible || document.hidden);
+
+  const restartProgress = () => {
+    showProgress.classList.remove("is-running");
+    void showProgress.offsetWidth;
+    if (!reduceMotion && offerList.length > 1) showProgress.classList.add("is-running");
+  };
+
+  const showSlide = (i) => {
+    if (!offerList.length) return;
+    offerIndex = (i + offerList.length) % offerList.length;
+    const it = offerList[offerIndex];
+    const nextFig = slidesEls[1 - activeSlide];
+    const img = $("img", nextFig);
+    img.removeAttribute("srcset");
+    img.alt = it.title || "";
+    setSources(img, it, "(max-width: 980px) 92vw, 540px");
+    $("figcaption", nextFig).textContent = it.title || "";
+    const swap = () => {
+      slidesEls[activeSlide].classList.remove("is-active");
+      nextFig.classList.add("is-active");
+      activeSlide = 1 - activeSlide;
+    };
+    if (img.complete && img.naturalWidth) swap();
+    else { img.onload = swap; img.onerror = swap; }
+    showCount.textContent = `${offerIndex + 1} / ${offerList.length}`;
+    const n = offerList[(offerIndex + 1) % offerList.length];
+    if (n && n !== it) { const pre = new Image(); pre.src = n.thumb && mediaPath(n.thumb) ? n.thumb : n.src; }
+    restartProgress();
+  };
+
+  const fillOfferText = (cat) => {
+    const o = OFFER[cat];
+    offerTitle.textContent = o.title;
+    offerDesc.textContent = o.desc;
+    offerPoints.innerHTML = "";
+    o.points.forEach((p) => offerPoints.appendChild(el("li", null, p)));
+    const n = realizacje.filter((it) => it.cat === cat).length;
+    offerMore.textContent = n ? `${o.more} (${n})` : o.more;
+    offerMore.hidden = !n;
+  };
+
+  const setOfferCat = (cat, focusTab) => {
+    if (!OFFER[cat]) return;
+    offerCat = cat;
+    tabs.forEach((t) => {
+      const on = t.dataset.cat === cat;
+      t.setAttribute("aria-selected", String(on));
+      t.tabIndex = on ? 0 : -1;
+      if (on && focusTab) t.focus();
+    });
+    offerPanel.setAttribute("aria-labelledby", `tab-${cat}`);
+    offerText.classList.add("is-changing");
+    setTimeout(() => {
+      fillOfferText(cat);
+      offerText.classList.remove("is-changing");
+    }, reduceMotion ? 0 : 200);
+    offerList = slidesFor(cat);
+    showEl.hidden = !offerList.length;
+    showSlide(0);
+  };
+
+  tabs.forEach((t, i) => {
+    t.addEventListener("click", () => setOfferCat(t.dataset.cat));
+    t.addEventListener("keydown", (e) => {
+      const keys = { ArrowRight: i + 1, ArrowLeft: i - 1, Home: 0, End: tabs.length - 1 };
+      if (!(e.key in keys)) return;
+      e.preventDefault();
+      const k = (keys[e.key] + tabs.length) % tabs.length;
+      setOfferCat(tabs[k].dataset.cat, true);
     });
   });
+  $("#showPrev").addEventListener("click", () => showSlide(offerIndex - 1));
+  $("#showNext").addEventListener("click", () => showSlide(offerIndex + 1));
+  showProgress.addEventListener("animationend", () => showSlide(offerIndex + 1));
+  showEl.addEventListener("mouseenter", () => { showHover = true; updatePause(); });
+  showEl.addEventListener("mouseleave", () => { showHover = false; updatePause(); });
+  document.addEventListener("visibilitychange", updatePause);
+  if ("IntersectionObserver" in window) {
+    new IntersectionObserver(([en]) => { showVisible = en.isIntersecting; updatePause(); }, { threshold: .25 }).observe(showEl);
+  } else {
+    showVisible = true;
+  }
+  offerMore.addEventListener("click", () => {
+    setFilter(offerCat);
+    $("#realizacje").scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth" });
+  });
+
+  /* ---------- Wczytanie realizacji ---------- */
+  (async () => {
+    try {
+      const res = await fetch("data/realizacje.json", { cache: "no-cache" });
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      const data = await res.json();
+      realizacje = (Array.isArray(data.items) ? data.items : []).filter(validItem);
+    } catch (err) {
+      realizacje = [];
+    }
+    // liczby przy filtrach i ukrycie pustych kategorii
+    chips.forEach((c) => {
+      const f = c.dataset.filter;
+      if (f === "all") return;
+      const n = realizacje.filter((it) => it.cat === f).length;
+      c.hidden = n === 0;
+      let badge = $(".chip__n", c);
+      if (!badge) { badge = el("span", "chip__n"); c.appendChild(badge); }
+      badge.textContent = n;
+    });
+    renderGallery();
+    fillOfferText(offerCat);
+    offerList = slidesFor(offerCat);
+    showEl.hidden = !offerList.length;
+    showSlide(0);
+  })();
 
   /* ---------- Facebook: profil w telefonie ----------
      1) Jeśli data/facebook.json ma posty (GitHub Action + Graph API), rysujemy własny feed:
@@ -266,20 +520,6 @@
      2) W przeciwnym razie od razu wczytujemy oficjalną wtyczkę strony Facebooka. */
   const PAGE_URL = "https://www.facebook.com/meblegrosman";
   const phoneContent = $("#phoneContent");
-
-  const el = (tag, cls, text) => {
-    const node = document.createElement(tag);
-    if (cls) node.className = cls;
-    if (text != null) node.textContent = text;
-    return node;
-  };
-
-  const plural = (n, forms) => {
-    const n10 = n % 10, n100 = n % 100;
-    if (n === 1) return forms[0];
-    if (n10 >= 2 && n10 <= 4 && (n100 < 12 || n100 > 14)) return forms[1];
-    return forms[2];
-  };
 
   const safeLink = (url) =>
     typeof url === "string" && /^https:\/\/(www\.|m\.|web\.)?facebook\.com\//.test(url) ? url : PAGE_URL;
@@ -318,12 +558,15 @@
     const f = document.createElement("iframe");
     f.title = "Profil Meble Grosman na Facebooku";
     f.loading = "lazy";
-    f.setAttribute("allow", "encrypted-media; clipboard-write; web-share");
+    f.setAttribute("scrolling", "no");
+    f.setAttribute("allowfullscreen", "true");
+    f.setAttribute("allow", "autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share");
     f.src = "https://www.facebook.com/plugins/page.php?href=" + encodeURIComponent(PAGE_URL) +
       `&tabs=timeline&width=${w}&height=${h}&small_header=false&adapt_container_width=true` +
       "&hide_cover=false&show_facepile=true&locale=pl_PL";
     f.addEventListener("load", () => f.classList.add("is-loaded"), { once: true });
     phoneContent.appendChild(f);
+    $("#fbHint").hidden = false;
   };
 
   const fbPost = (post) => {
@@ -366,7 +609,7 @@
       media.setAttribute("aria-label", `Obejrzyj film z ${date.full} na Facebooku`);
       const play = el("span", "fbpost__play");
       const circle = el("span");
-      circle.innerHTML = '<svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg>';
+      circle.innerHTML = PLAY_SVG;
       play.appendChild(circle);
       media.appendChild(play);
     } else {
@@ -440,6 +683,37 @@
     } catch (err) {
       loadPlugin();
     }
+  })();
+
+  /* ---------- Instagram: 3 ostatnie posty, jeśli GitHub Action je pobrał ---------- */
+  (async () => {
+    const IG_URL = "https://www.instagram.com/meblenawymiar_dombezchemii/";
+    const grid = $("#igGrid");
+    try {
+      const res = await fetch("data/instagram.json", { cache: "no-cache" });
+      if (!res.ok) return;
+      const data = await res.json();
+      const posts = (Array.isArray(data.posts) ? data.posts : [])
+        .filter((p) => p && typeof p.image === "string" && /^img\/ig\/[\w.-]+$/.test(p.image))
+        .slice(0, 3);
+      posts.forEach((p) => {
+        const li = el("li");
+        const a = el("a");
+        a.href = typeof p.link === "string" && /^https:\/\/(www\.)?instagram\.com\//.test(p.link) ? p.link : IG_URL;
+        a.target = "_blank";
+        a.rel = "noopener";
+        a.setAttribute("aria-label", "Post na Instagramie" + (p.date ? " z " + formatDate(p.date).full : ""));
+        const img = el("img");
+        img.src = p.image;
+        img.alt = "";
+        img.loading = "lazy";
+        img.decoding = "async";
+        a.appendChild(img);
+        li.appendChild(a);
+        grid.appendChild(li);
+      });
+      grid.hidden = posts.length === 0;
+    } catch (err) { /* zostaje sama karta z linkiem */ }
   })();
 
   /* ---------- Godziny otwarcia ---------- */

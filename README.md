@@ -8,14 +8,50 @@ Statyczna strona (HTML, CSS, JS) na GitHub Pages, z automatycznym feedem postów
 3. Własna domena: dodaj plik `CNAME` z nazwą domeny i ustaw rekordy DNS.
 
 ## Struktura
-- `index.html`: treść strony
-- `css/style.css`: wygląd (kolory i fonty w zmiennych na górze pliku)
-- `js/main.js`: kolory frontów w hero, oferta, galeria z lightboxem, Facebook w telefonie, godziny otwarcia
-- `img/`: zdjęcia i logo, `img/fb/`: zdjęcia z postów (zapisuje je automat)
-- `data/facebook.json`: posty z Facebooka (zapisuje je automat)
-- `scripts/fetch_facebook.py` i `.github/workflows/facebook.yml`: automat pobierający posty
+- `index.html`, `css/style.css`, `js/main.js`: strona
+- `data/realizacje.json`: galeria i zdjęcia w "Co dla Ciebie zrobimy" (edytuje je panel)
+- `img/realizacje/`, `video/`: zdjęcia i filmy dodane z panelu
+- `admin/`: panel do dodawania realizacji (wejście: link "Panel" na samym dole strony)
+- `data/facebook.json`, `img/fb/`, `data/instagram.json`, `img/ig/`: posty pobierane automatem
+- `scripts/fetch_facebook.py` i `.github/workflows/facebook.yml`: automat Facebook i Instagram
 
-## Facebook: jak to działa
+## Panel: dodawanie realizacji z telefonu
+Adres: `/admin/` (link "Panel" w stopce). Hasło: `12345`, zmiana w `admin/config.js`.
+
+Panel zmniejsza zdjęcia na telefonie (1600 px i miniatura 640 px), filmom robi kadr
+podglądu i zapisuje wszystko w repozytorium jednym commitem. GitHub Pages publikuje
+zmianę po 1-2 minutach. W panelu można też zmienić opis, kategorię, kolejność,
+zaznaczyć "Duży kafelek" albo usunąć realizację.
+
+Na stronie galeria wczytuje tylko pierwszą porcję kafelków (małe miniatury),
+pełne zdjęcia i filmy pobierają się dopiero po otwarciu.
+
+### Jednorazowo: klucz dostępu dla telefonu klientki
+1. GitHub > Settings > Developer settings > Personal access tokens > Fine-grained tokens >
+   Generate new token.
+2. Nazwa np. "Panel Meble Grosman", ważność najdłuższa możliwa (zapisz sobie datę odnowienia).
+3. Repository access: Only select repositories > `MebleGrosman`.
+4. Repository permissions > Contents: **Read and write** (Metadata: Read doda się sam).
+5. Generate token i skopiuj klucz.
+6. Na telefonie klientki otwórz panel, wpisz hasło i wklej klucz. Można też wysłać link
+   `https://dominikszewczyk224180.github.io/MebleGrosman/admin/#klucz=TU_KLUCZ`:
+   klucz zapisze się na telefonie i zniknie z adresu. Bezpieczniej zrobić to na miejscu,
+   bo link z kluczem zostaje w historii czatu.
+7. Zgubiony telefon albo koniec współpracy: usuń token na GitHubie i panel od razu traci dostęp.
+
+### Bezpieczeństwo
+Hasło to tylko zamek na drzwiach panelu, bo kod strony może podejrzeć każdy.
+Zmiany da się zrobić wyłącznie z kluczem, który jest zapisany tylko na telefonie klientki
+i ma dostęp do jednego repozytorium.
+
+### Filmy
+- Limit 50 MB na film (`maxVideoMB` w `admin/config.js`). Cała strona na GitHub Pages może
+  mieć do ok. 1 GB, panel pokazuje zajęte miejsce.
+- iPhone: Ustawienia > Aparat > Formaty > "Najbardziej zgodne". Wtedy filmy odtwarzają się
+  też na Androidzie i Windowsie.
+- Długie filmy lepiej wrzucać na Facebooka albo YouTube.
+
+## Facebook i Instagram: jak to działa
 Sekcja "Nowości prosto z naszego Facebooka" pokazuje profil w telefonie i działa od razu,
 bez żadnej konfiguracji: wczytuje oficjalną wtyczkę strony Facebooka (okładka, nazwa, posty).
 
@@ -25,6 +61,10 @@ Telefon pokazuje wtedy posty w stylu strony, ładuje się szybciej i nie wczytuj
 ani plików cookie Facebooka. Token leży w sekretach GitHuba, nie w kodzie strony.
 Strona sama wybiera wersję: są posty w `data/facebook.json`, to własny feed, nie ma, to wtyczka.
 
+Instagram nie ma oficjalnego okna do osadzenia profilu, więc obok Facebooka jest karta z linkiem.
+Jeśli konto Instagram jest firmowe i połączone ze stroną na Facebooku, ten sam automat
+pobiera też 3 ostatnie posty z Instagrama i pokazuje je jako miniatury pod kartą.
+
 ## Facebook: konfiguracja własnego feedu (opcjonalna, ok. 15 minut)
 1. **Dostęp do strony.** Właściciel dodaje Cię na stronie Meble Grosman:
    Ustawienia > Dostęp do strony > Dodaj nową osobę. Wystarczy dostęp częściowy.
@@ -32,7 +72,8 @@ Strona sama wybiera wersję: są posty w `data/facebook.json`, to własny feed, 
    Wybierz przypadek użycia związany z zarządzaniem stroną (albo "Inne" i typ "Firma").
    Aplikacja może zostać w trybie deweloperskim, przegląd przez Meta nie jest potrzebny.
 3. **Token użytkownika.** developers.facebook.com/tools/explorer, wybierz swoją aplikację,
-   dodaj uprawnienia `pages_show_list`, `pages_read_engagement`, `pages_read_user_content`,
+   dodaj uprawnienia `pages_show_list`, `pages_read_engagement`, `pages_read_user_content`
+   (oraz `instagram_basic`, jeśli konto Instagram jest firmowe i połączone ze stroną na FB),
    kliknij Generate Access Token i zaznacz stronę Meble Grosman.
 4. **Token długoterminowy.** Kliknij ikonę "i" przy tokenie > Open in Access Token Tool >
    Extend Access Token. Skopiuj nowy, dłuższy token.
@@ -55,10 +96,11 @@ Strona sama wybiera wersję: są posty w `data/facebook.json`, to własny feed, 
 - **W aplikacji włączone "Require App Secret".** Dodaj drugi sekret `FB_APP_SECRET`.
 - **Wersja Graph API.** Domyślnie v26.0. Zmienisz ją zmienną `FB_GRAPH_VERSION` w workflow.
 
-## Podmiana zdjęć
-Zdjęcia w `img/` mają 414x414 px. Najlepiej podmienić je na oryginały (min. 1200 px) pod tymi samymi nazwami.
-Kolejność w galerii zmienia się w `index.html`: pierwsze 15 zdjęć widać od razu, pozostałe
-(z atrybutem `data-more`) po kliknięciu "Pokaż więcej realizacji". Duże kafelki mają klasę `g-wide`.
+## Zdjęcia
+Najprościej przez panel. Ręcznie: wpisy w `data/realizacje.json` (kolejność w pliku to kolejność
+na stronie, `featured: true` daje duży kafelek, `cat`: kuchnie, szafy, lazienki, salon, inne).
+Pierwsze zdjęcia mają 414x414 px, bo pochodzą z Facebooka. Oryginały w pełnej rozdzielczości
+najlepiej dodać przez panel, a stare wersje usunąć.
 
 ## Hero
 Animacja w hero to rysunek SVG w `index.html` (projekt kuchni z wymiarami, montaż frontów, LED).
