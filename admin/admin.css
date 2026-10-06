@@ -280,7 +280,7 @@ input:focus, select:focus { border-color: var(--graphite); outline: none; }
   font-weight: 600;
   line-height: 1.5;
 }
-.tile__cat { left: 5px; bottom: 5px; }
+.tile__cat { left: 5px; top: 5px; }
 .tile__flag { right: 5px; top: 5px; background: var(--orange); color: var(--graphite); }
 .tile__play {
   position: absolute;
@@ -290,23 +290,43 @@ input:focus, select:focus { border-color: var(--graphite); outline: none; }
   color: #fff;
   filter: drop-shadow(0 2px 6px rgba(0, 0, 0, .5));
 }
-.tile.is-changed { box-shadow: inset 0 0 0 3px var(--orange); }
+.grid li { position: relative; }
+.tile__moves {
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  bottom: 4px;
+  display: flex;
+  justify-content: space-between;
+  pointer-events: none;
+}
+.tile__move {
+  pointer-events: auto;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: rgba(20, 18, 16, .74);
+  color: #fff;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color .15s ease, transform .1s ease;
+}
+.tile__move:hover { background: var(--graphite); }
+.tile__move:active { background: var(--orange); color: var(--graphite); transform: scale(.94); }
+.tile__move:disabled { visibility: hidden; }
+.tile.is-moved { animation: tile-moved .7s ease; }
+@keyframes tile-moved {
+  0% { box-shadow: inset 0 0 0 4px var(--orange); transform: scale(.95); }
+  60% { box-shadow: inset 0 0 0 4px var(--orange); transform: none; }
+  100% { box-shadow: inset 0 0 0 4px transparent; }
+}
 .foot { margin-top: 36px; text-align: center; }
 
 /* wersja pokazowa i dymek "zapisano" */
-.demo {
-  display: grid;
-  gap: 6px;
-  justify-items: start;
-  margin: 0 0 18px;
-  padding: 14px 16px;
-  border-radius: 14px;
-  background: #FFF1E6;
-  border: 1px solid rgba(255, 145, 77, .45);
-}
-.demo strong { color: var(--orange-ink); }
-.demo p { color: var(--ink); font-size: .95rem; }
-.demo .btn { margin-top: 6px; }
 .toast {
   position: fixed;
   left: 50%;

@@ -431,6 +431,21 @@ h1, h2, h3 { text-wrap: balance; }
   font-size: 1.15rem;
   max-width: 48ch;
 }
+.section-head--split {
+  max-width: none;
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
+  column-gap: clamp(2rem, 4vw, 4rem);
+  row-gap: 1rem;
+  align-items: end;
+  margin-bottom: clamp(2rem, 3.5vw, 2.75rem);
+}
+.section-head--split p {
+  margin-top: 0;
+  max-width: 44ch;
+  font-size: 1.08rem;
+  line-height: 1.65;
+}
 .section-head--row {
   max-width: none;
   display: flex;
@@ -442,14 +457,14 @@ h1, h2, h3 { text-wrap: balance; }
 
 /* ---------- Oferta: interaktywny plan mieszkania ---------- */
 .offer {
-  padding-block: var(--section);
+  padding-block: clamp(4rem, 8vw, 6.5rem);
   background: var(--stone);
 }
 .rooms {
   display: grid;
   grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
   gap: clamp(2rem, 4vw, 4rem);
-  align-items: center;
+  align-items: start;
 }
 .plan {
   display: block;
@@ -533,18 +548,22 @@ h1, h2, h3 { text-wrap: balance; }
 .door { fill: none; stroke: #2B2825; stroke-width: 1.2; stroke-opacity: .7; }
 
 /* opis i zdjęcia obok planu */
-.rooms__info { transition: opacity .25s ease, transform .25s ease; }
-.rooms__info.is-changing { opacity: 0; transform: translateY(6px); }
-.rooms__info h3 { font-size: clamp(2rem, 3.4vw, 2.7rem); }
+.rooms__info > * { transition: opacity .25s ease, transform .25s ease; }
+.rooms__info.is-changing > * { opacity: 0; transform: translateY(6px); }
+.rooms__info {
+  padding-top: 1.4rem;
+  border-top: 2px solid var(--graphite);
+}
+.rooms__info h3 { font-size: clamp(1.6rem, 2.4vw, 2rem); }
 .rooms__info p {
-  margin-top: .9rem;
+  margin-top: .8rem;
   max-width: 46ch;
   font-size: clamp(1.05rem, 1.35vw, 1.18rem);
   line-height: 1.65;
 }
 .rooms__photos {
   list-style: none;
-  margin: 1.6rem 0 1.8rem;
+  margin: 1.4rem 0 1.6rem;
   padding: 0;
   display: grid;
   grid-template-columns: 2fr 1fr;
@@ -773,16 +792,6 @@ h1, h2, h3 { text-wrap: balance; }
   text-align: center;
 }
 .social__hint a { color: var(--graphite); font-weight: 600; text-decoration-color: var(--orange); text-underline-offset: 3px; }
-.demo-note {
-  display: inline-block;
-  margin-top: .9rem !important;
-  padding: .45rem .8rem;
-  border-radius: 8px;
-  background: #FFF1E6;
-  color: var(--orange-ink) !important;
-  font-size: .92rem !important;
-  font-weight: 600;
-}
 .chip__n { margin-left: .4rem; font-size: .8em; opacity: .6; font-variant-numeric: tabular-nums; }
 .social__note a {
   color: var(--graphite);
@@ -1395,6 +1404,8 @@ a.fbpost__media { cursor: pointer; }
   .hero__title { max-width: 16ch; }
 
   .rooms { grid-template-columns: 1fr; }
+  .section-head--split { grid-template-columns: 1fr; }
+  .rooms__info { max-width: 680px; }
   .rooms__plan { max-width: 680px; }
 
   .steps { grid-template-columns: 1fr 1fr; gap: 2.5rem 0; }

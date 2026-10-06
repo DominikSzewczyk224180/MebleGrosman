@@ -302,14 +302,34 @@
       `${images} ${plural(images, ["zdjęcie", "zdjęcia", "zdjęć"])} i ${videos} ${plural(videos, ["film", "filmy", "filmów"])} na stronie.`;
   };
 
+  const arrow = (dir) => `<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="${dir < 0 ? "M15 5l-7 7 7 7" : "M9 5l7 7-7 7"}" stroke="currentColor" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+
+  // przesuwa realizację o jedno miejsce w obrębie aktualnie widocznej listy
+  const moveBy = async (id, dir) => {
+    const ids = visibleIds();
+    const i = ids.indexOf(id);
+    const j = i + dir;
+    if (i < 0 || j < 0 || j >= ids.length) return;
+    const op = dir < 0 ? { op: "move", id, beforeId: ids[j] } : { op: "move", id, afterId: ids[j] };
+    await persist(applyOp(base, op));
+    const moved = $(`.tile[data-id="${id}"]`);
+    if (moved) {
+      moved.classList.add("is-moved");
+      const btn = moved.parentElement.querySelector(dir < 0 ? "[data-dir='-1']" : "[data-dir='1']");
+      (btn && !btn.disabled ? btn : moved).focus({ preventScroll: true });
+    }
+  };
+
   const renderList = () => {
     const list = $("#itemList");
     const cat = $("#viewCat").value;
+    const visible = base.items.filter((it) => cat === "all" || it.cat === cat);
     list.innerHTML = "";
-    base.items.filter((it) => cat === "all" || it.cat === cat).forEach((it) => {
+    visible.forEach((it, idx) => {
       const li = el("li");
       const b = el("button", "tile");
       b.type = "button";
+      b.dataset.id = it.id;
       b.setAttribute("aria-label", `Edytuj: ${it.title || CATS[it.cat]}`);
       if (it.color) b.style.backgroundColor = it.color;
       const thumb = mediaUrl(it.type === "video" ? it.poster : (it.thumb || it.src));
@@ -329,6 +349,19 @@
       if (it.featured) b.appendChild(el("span", "tile__flag", "Duży"));
       b.addEventListener("click", () => openEdit(it.id));
       li.appendChild(b);
+
+      const moves = el("div", "tile__moves");
+      [-1, 1].forEach((dir) => {
+        const m = el("button", "tile__move");
+        m.type = "button";
+        m.dataset.dir = String(dir);
+        m.innerHTML = arrow(dir);
+        m.setAttribute("aria-label", dir < 0 ? "Przesuń wcześniej" : "Przesuń dalej");
+        m.disabled = dir < 0 ? idx === 0 : idx === visible.length - 1;
+        m.addEventListener("click", (e) => { e.stopPropagation(); moveBy(it.id, dir); });
+        moves.appendChild(m);
+      });
+      li.appendChild(moves);
       list.appendChild(li);
     });
   };
@@ -411,13 +444,13 @@
   });
 
   $("#resetDemo").addEventListener("click", async () => {
-    if (!confirm("Usunąć wszystkie zmiany z tego urządzenia i wrócić do galerii ze strony?")) return;
+    if (!confirm("Przywrócić galerię do stanu początkowego? Dodane zdjęcia i zmiany zostaną usunięte.")) return;
     await Store.reset();
     urls.forEach((u) => URL.revokeObjectURL(u));
     urls.clear();
     notice("");
     await loadItems();
-    toast("Przywrócono galerię ze strony");
+    toast("Przywrócono galerię");
   });
 
   /* ---------- nowe pliki ---------- */
@@ -576,7 +609,7 @@
       const imgs = items.filter((i) => i.type === "image").length;
       const vids = items.length - imgs;
       const what = [imgs ? `${imgs} ${plural(imgs, ["zdjęcie", "zdjęcia", "zdjęć"])}` : "", vids ? `${vids} ${plural(vids, ["film", "filmy", "filmów"])}` : ""].filter(Boolean).join(" i ");
-      notice(`Gotowe! Dodano ${what}. Na stronie widać je od razu na tym urządzeniu.`);
+      notice(`Gotowe! Dodano ${what}. Są już widoczne na stronie.`);
       renderDrafts();
     } catch (e) {
       setProgress(null);

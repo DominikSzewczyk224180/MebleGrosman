@@ -343,28 +343,28 @@
   /* ---------- Oferta: interaktywny plan mieszkania ---------- */
   const ROOMS = {
     kuchnia: {
-      cat: "kuchnie", title: "Kuchnia", more: "Zobacz wszystkie kuchnie",
-      desc: "Robimy kuchnię pod Twoje pomieszczenie, co do centymetra: w zabudowie, w kształcie litery L lub U, z wyspą albo półwyspem. Dobieramy fronty, blaty i podświetlenie, a lodówkę, piekarnik i zmywarkę chowamy w zabudowie."
+      cat: "kuchnie", title: "Kuchnie na wymiar",
+      desc: "Kuchnie projektujemy pod układ pomieszczenia i sposób, w jaki z niej korzystasz: w zabudowie, w kształcie litery L lub U, z wyspą albo półwyspem. Dobieramy fronty, blaty i oświetlenie, a zabudowę planujemy tak, by pomieściła sprzęt AGD i wszystko, czego potrzebujesz na co dzień."
     },
     salon: {
-      cat: "salon", title: "Salon", more: "Zobacz realizacje do salonu",
-      desc: "Ściana RTV, witryny z podświetleniem i panele lamelowe. Meble, które porządkują salon i chowają wszystko, co nie musi być na widoku."
+      cat: "salon", title: "Meble do salonu",
+      desc: "Ściany RTV, witryny z podświetleniem i panele lamelowe, które porządkują przestrzeń i nadają wnętrzu charakter. Projektujemy je tak, by sprzęt i przewody zniknęły z widoku, a salon zyskał spójny, elegancki wygląd."
     },
     lazienka: {
-      cat: "lazienki", title: "Łazienka", more: "Zobacz łazienki",
-      desc: "Szafki pod umywalkę, wysokie słupki i zabudowa stelaża WC. Z płyt odpornych na wilgoć i dopasowane do każdej wnęki, nawet tej najmniejszej."
+      cat: "lazienki", title: "Meble łazienkowe",
+      desc: "Szafki podumywalkowe, wysokie słupki i zabudowy stelaża WC z materiałów odpornych na wilgoć. Dopasowujemy je do każdej wnęki, także w niewielkich łazienkach, aby w pełni wykorzystać dostępne miejsce."
     },
     przedpokoj: {
-      cat: "szafy", title: "Przedpokój", more: "Zobacz szafy i zabudowy", prefer: /przedpok/i,
-      desc: "Szafy wnękowe, konsole i schowki na buty. W przedpokoju liczy się każdy centymetr, więc wykorzystujemy go od podłogi aż po sufit."
+      cat: "szafy", title: "Zabudowa przedpokoju", prefer: /przedpok/i,
+      desc: "Szafy wnękowe, konsole i zabudowy na obuwie, zaprojektowane tak, by w ograniczonej przestrzeni zmieścić jak najwięcej. Wykorzystujemy pełną wysokość pomieszczenia, dzięki czemu przedpokój pozostaje uporządkowany na co dzień."
     },
     sypialnia: {
-      cat: "szafy", title: "Sypialnia", more: "Zobacz szafy i zabudowy", prefer: /sypial|szaf/i,
-      desc: "Szafy od podłogi do sufitu, garderoby i zabudowa wokół łóżka. Wnętrze szafy planujemy pod Twoje ubrania, a fronty dobieramy do reszty mieszkania."
+      cat: "szafy", title: "Szafy i garderoby", prefer: /sypial|szaf/i,
+      desc: "Szafy od podłogi do sufitu, garderoby i zabudowy wokół łóżka. Wnętrze szafy planujemy indywidualnie, pod Twoje ubrania i sposób przechowywania, a fronty dobieramy tak, by współgrały z resztą wnętrza."
     },
     gabinet: {
-      cat: "inne", title: "Gabinet i schody", more: "Zobacz schody, biura i inne",
-      desc: "Biurka, meble do biura i zabudowy pod schodami z szufladami. Masz nietypowy pomysł albo trudne miejsce? Przyjedziemy, zmierzymy i zaproponujemy rozwiązanie."
+      cat: "inne", title: "Biura i zabudowy schodów",
+      desc: "Biurka, meble biurowe oraz zabudowy pod schodami z szufladami i półkami. Realizujemy także projekty nietypowe: przyjeżdżamy na pomiar, doradzamy i proponujemy rozwiązanie dopasowane do miejsca."
     }
   };
 
@@ -410,7 +410,7 @@
       roomPhotos.appendChild(li);
     });
     const n = realizacje.filter((it) => it.cat === ROOMS[room].cat).length;
-    roomMore.textContent = n ? `${ROOMS[room].more} (${n})` : ROOMS[room].more;
+    roomMore.textContent = n ? `Zobacz realizacje (${n})` : "Zobacz realizacje";
     roomMore.hidden = !n;
   };
 
@@ -486,7 +486,6 @@
         if (local && Array.isArray(local.items)) {
           const resolved = await window.MGDemo.resolve(local);
           realizacje = resolved.items.filter(validItem);
-          $("#demoNote").hidden = false;
         }
       } catch (err) { /* zostają dane z serwera */ }
     }

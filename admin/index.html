@@ -41,13 +41,6 @@
         <h1>Realizacje</h1>
         <p class="muted" id="stats">Wczytuję…</p>
       </div>
-
-      <div class="demo">
-        <strong>Wersja pokazowa</strong>
-        <p>Zdjęcia i zmiany zapisują się tylko na tym urządzeniu i tylko tu widać je na stronie. Po przeniesieniu strony na serwer będą widoczne dla wszystkich.</p>
-        <a class="btn btn--ghost btn--small" href="../#realizacje">Zobacz na stronie</a>
-      </div>
-
       <label class="add" id="addLabel">
         <input id="files" type="file" accept="image/*,video/*" multiple>
         <span class="add__plus" aria-hidden="true">
@@ -82,12 +75,12 @@
           <h2>Na stronie</h2>
           <select id="viewCat" aria-label="Pokaż kategorię"></select>
         </div>
-        <p class="muted">Dotknij kafelka, żeby zmienić opis, kategorię albo kolejność, lub żeby go usunąć. Zmiany zapisują się od razu.</p>
+        <p class="muted">Strzałkami na zdjęciu zmienisz kolejność. Dotknij zdjęcia, żeby zmienić opis, kategorię albo je usunąć. Zmiany zapisują się od razu.</p>
         <ul class="grid" id="itemList"></ul>
       </section>
 
       <p class="foot">
-        <button class="linkbtn" id="resetDemo" type="button">Przywróć galerię ze strony (usuń zmiany z tego urządzenia)</button>
+        <button class="linkbtn" id="resetDemo" type="button">Przywróć galerię do stanu początkowego</button>
       </p>
     </section>
   </main>
