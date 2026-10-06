@@ -35,23 +35,17 @@
       </form>
     </section>
 
-    <!-- 2. Klucz dostępu (jednorazowo na urządzeniu) -->
-    <section class="view" id="viewKey" hidden>
-      <h1>Połącz panel ze stroną</h1>
-      <p class="lead">Robisz to tylko raz na tym telefonie. Klucz dostępu dostaniesz od osoby, która opiekuje się stroną.</p>
-      <form class="card" id="keyForm" novalidate>
-        <label for="key">Klucz dostępu</label>
-        <input id="key" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" required placeholder="github_pat_…">
-        <p class="error" id="keyError" hidden></p>
-        <button class="btn btn--block" type="submit">Połącz</button>
-      </form>
-    </section>
-
     <!-- 3. Realizacje -->
     <section class="view" id="viewMain" hidden>
       <div class="head">
         <h1>Realizacje</h1>
         <p class="muted" id="stats">Wczytuję…</p>
+      </div>
+
+      <div class="demo">
+        <strong>Wersja pokazowa</strong>
+        <p>Zdjęcia i zmiany zapisują się tylko na tym urządzeniu i tylko tu widać je na stronie. Po przeniesieniu strony na serwer będą widoczne dla wszystkich.</p>
+        <a class="btn btn--ghost btn--small" href="../#realizacje">Zobacz na stronie</a>
       </div>
 
       <label class="add" id="addLabel">
@@ -88,21 +82,17 @@
           <h2>Na stronie</h2>
           <select id="viewCat" aria-label="Pokaż kategorię"></select>
         </div>
-        <p class="muted">Dotknij kafelka, żeby zmienić opis, kategorię albo kolejność, lub żeby go usunąć.</p>
+        <p class="muted">Dotknij kafelka, żeby zmienić opis, kategorię albo kolejność, lub żeby go usunąć. Zmiany zapisują się od razu.</p>
         <ul class="grid" id="itemList"></ul>
       </section>
 
       <p class="foot">
-        <button class="linkbtn" id="forgetKey" type="button">Odłącz ten telefon od strony</button>
+        <button class="linkbtn" id="resetDemo" type="button">Przywróć galerię ze strony (usuń zmiany z tego urządzenia)</button>
       </p>
     </section>
   </main>
 
-  <div class="savebar" id="saveBar" hidden>
-    <span id="pendingText"></span>
-    <button class="btn btn--ghost btn--small" id="discard" type="button">Cofnij</button>
-    <button class="btn btn--small" id="save" type="button">Zapisz zmiany</button>
-  </div>
+  <div class="toast" id="toast" role="status" hidden></div>
 
   <dialog class="sheet" id="editSheet" aria-labelledby="editHeading">
     <form method="dialog" class="sheet__inner" id="editForm">
@@ -127,6 +117,7 @@
   </dialog>
 
   <script src="config.js"></script>
+  <script src="../js/demo-store.js"></script>
   <script src="admin.js" defer></script>
 </body>
 </html>

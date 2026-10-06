@@ -277,49 +277,96 @@
       </div>
     </section>
 
-    <!-- OFERTA: zakładki z kategoriami, opis i pokaz zdjęć z danej kategorii (zdjęcia z data/realizacje.json) -->
+    <!-- OFERTA: interaktywny plan mieszkania. Kliknięte pomieszczenie "materializuje się",
+         obok opis i zdjęcia z tej kategorii (z data/realizacje.json). -->
     <section class="offer" id="oferta">
       <div class="wrap">
         <div class="section-head">
           <h2>Co dla Ciebie zrobimy</h2>
-          <p>Każdy mebel powstaje od zera, pod konkretne wymiary, ściany i sposób, w jaki z niego korzystasz.</p>
+          <p>Wybierz pomieszczenie na planie i zobacz, co możemy w nim zrobić.</p>
         </div>
 
-        <div class="tabs" role="tablist" aria-label="Rodzaje mebli" id="offerTabs">
-          <button class="tab" role="tab" id="tab-kuchnie" data-cat="kuchnie" aria-selected="true" aria-controls="offerPanel">Kuchnie</button>
-          <button class="tab" role="tab" id="tab-szafy" data-cat="szafy" aria-selected="false" aria-controls="offerPanel" tabindex="-1">Szafy i zabudowy</button>
-          <button class="tab" role="tab" id="tab-lazienki" data-cat="lazienki" aria-selected="false" aria-controls="offerPanel" tabindex="-1">Łazienki</button>
-          <button class="tab" role="tab" id="tab-salon" data-cat="salon" aria-selected="false" aria-controls="offerPanel" tabindex="-1">Salon i RTV</button>
-          <button class="tab" role="tab" id="tab-inne" data-cat="inne" aria-selected="false" aria-controls="offerPanel" tabindex="-1">Schody i biura</button>
-        </div>
-
-        <div class="offer__panel" id="offerPanel" role="tabpanel" aria-labelledby="tab-kuchnie">
-          <div class="offer__text" id="offerText">
-            <h3 id="offerTitle">Kuchnie na wymiar</h3>
-            <p id="offerDesc">Projektujemy kuchnie pod konkretne pomieszczenie: w zabudowie, w kształcie litery L i U, z wyspą albo półwyspem. Wykorzystujemy każdy centymetr, także pod skosami, a fronty, blaty i oświetlenie dobieramy do stylu wnętrza.</p>
-            <ul class="offer__points" id="offerPoints">
-              <li>Fronty matowe, w połysku, drewnopodobne i lamelowe</li>
-              <li>Wysokie słupki na piekarnik, lodówkę i schowki</li>
-              <li>Podświetlenie LED pod szafkami i w witrynach</li>
-            </ul>
-            <button class="btn btn--ghost" id="offerMore" type="button">Zobacz wszystkie kuchnie</button>
+        <div class="rooms">
+          <div class="rooms__plan">
+<svg class="plan" id="plan" viewBox="0 0 640 440" xmlns="http://www.w3.org/2000/svg" aria-labelledby="planTitle" role="group">
+<title id="planTitle">Plan mieszkania: wybierz pomieszczenie</title>
+<defs>
+  <pattern id="pGrid" width="10" height="10" patternUnits="userSpaceOnUse">
+    <path d="M10 0H0V10" fill="none" stroke="#24221F" stroke-opacity=".05" stroke-width="1"/>
+  </pattern>
+</defs>
+<rect x="0" y="0" width="640" height="440" rx="6" fill="#F7F5F1"/>
+<rect x="20" y="20" width="600" height="400" fill="url(#pGrid)"/>
+<g class="room" id="room-salon" data-room="salon" data-cat="salon" tabindex="0" role="button" aria-pressed="false" aria-label="Salon">
+<rect class="room__hit" x="20" y="20" width="310" height="240"/>
+<g class="room__furn"><rect class="furn" style="--m:#D8CEC1;--k:0" x="24" y="62" width="22" height="152" rx="1.5"/><rect class="furn" style="--m:#1F1D1B;--k:1" x="47" y="104" width="3" height="68" rx="0.5"/><rect class="furn" style="--m:#3A3733;--k:2" x="244" y="24" width="78" height="20" rx="1.5"/><path class="detail" style="--k:2" d="M263 24v20M283 24v20M303 24v20"/><path class="furn" style="--m:#CFC6BA;--k:3" d="M196 78h46v126h-104v-34h58z"/><path class="detail" style="--k:3" d="M204 86v110M146 176h50"/><circle class="furn" style="--m:#C8955C;--k:4" cx="118" cy="138" r="22"/></g>
+<path class="room__mark" d="M29 45V29H45M305 29H321V45M321 235V251H305M45 251H29V235"/>
+<text class="room__name" x="96" y="232" text-anchor="middle">Salon</text>
+<text class="room__area" x="96" y="247" text-anchor="middle">29,8 m²</text>
+</g>
+<g class="room" id="room-kuchnia" data-room="kuchnia" data-cat="kuchnie" tabindex="0" role="button" aria-pressed="false" aria-label="Kuchnia">
+<rect class="room__hit" x="330" y="20" width="160" height="180"/>
+<g class="room__furn"><rect class="furn" style="--m:#D8CEC1;--k:0" x="334" y="24" width="24" height="30" rx="1.5"/><path class="detail" style="--k:0" d="M334 24l24 30M358 24l-24 30"/><rect class="furn" style="--m:#C8955C;--k:1" x="358" y="24" width="128" height="30" rx="1.5"/><rect class="furn" style="--m:#C8955C;--k:2" x="456" y="54" width="30" height="106" rx="1.5"/><rect class="furn" style="--m:#1F1D1B;--k:3" x="372" y="29" width="32" height="20" rx="2"/><circle class="furn" style="--m:#3A3733;--k:3" cx="380" cy="35" r="3.2"/><circle class="furn" style="--m:#3A3733;--k:3" cx="396" cy="35" r="3.2"/><circle class="furn" style="--m:#3A3733;--k:3" cx="380" cy="43" r="3.2"/><circle class="furn" style="--m:#3A3733;--k:3" cx="396" cy="43" r="3.2"/><rect class="furn" style="--m:#1F1D1B;--k:4" x="462" y="92" width="18" height="30" rx="4"/><rect class="furn" style="--m:#C8955C;--k:5" x="372" y="86" width="56" height="42" rx="1.5"/><circle class="furn" style="--m:#3A3733;--k:6" cx="386" cy="140" r="7"/><circle class="furn" style="--m:#3A3733;--k:6" cx="414" cy="140" r="7"/><path class="detail" style="--k:1" d="M334 58h120"/></g>
+<path class="room__mark" d="M339 45V29H355M465 29H481V45M481 175V191H465M355 191H339V175"/>
+<text class="room__name" x="392" y="178" text-anchor="middle">Kuchnia</text>
+<text class="room__area" x="392" y="193" text-anchor="middle">12,2 m²</text>
+</g>
+<g class="room" id="room-lazienka" data-room="lazienka" data-cat="lazienki" tabindex="0" role="button" aria-pressed="false" aria-label="Łazienka">
+<rect class="room__hit" x="490" y="20" width="130" height="180"/>
+<g class="room__furn"><rect class="furn" style="--m:#C8955C;--k:0" x="494" y="24" width="66" height="26" rx="1.5"/><ellipse class="furn" style="--m:#FBFAF7;--k:1" cx="527" cy="37" rx="17" ry="9"/><rect class="furn" style="--m:#D8CEC1;--k:1" x="596" y="24" width="20" height="40" rx="1.5"/><path class="detail" style="--k:1" d="M596 24l20 40M616 24l-20 40"/><rect class="furn" style="--m:#D8CEC1;--k:2" x="596" y="70" width="20" height="42" rx="1.5"/><ellipse class="furn" style="--m:#FBFAF7;--k:3" cx="584" cy="91" rx="12" ry="10"/><rect class="furn" style="--m:#DCE2E2;--k:4" x="562" y="136" width="54" height="60" rx="0"/><path class="detail" style="--k:4" d="M562 136l54 60M589 136v60"/><circle class="furn" style="--m:#3A3733;--k:4" cx="589" cy="166" r="3"/></g>
+<path class="room__mark" d="M499 45V29H515M595 29H611V45M611 175V191H595M515 191H499V175"/>
+<text class="room__name" x="527" y="176" text-anchor="middle">Łazienka</text>
+<text class="room__area" x="527" y="191" text-anchor="middle">9,4 m²</text>
+</g>
+<g class="room" id="room-przedpokoj" data-room="przedpokoj" data-cat="szafy" tabindex="0" role="button" aria-pressed="false" aria-label="Przedpokój">
+<rect class="room__hit" x="330" y="200" width="290" height="90"/>
+<g class="room__furn"><rect class="furn" style="--m:#D8CEC1;--k:0" x="424" y="256" width="142" height="30" rx="1.5"/><path class="detail" style="--k:1" d="M471 256v30M519 256v30"/><rect class="furn" style="--m:#C8955C;--k:2" x="398" y="204" width="102" height="16" rx="1.5"/></g>
+<path class="room__mark" d="M339 225V209H355M595 209H611V225M611 265V281H595M355 281H339V265"/>
+<text class="room__name" x="372" y="246" text-anchor="middle">Przedpokój</text>
+<text class="room__area" x="372" y="261" text-anchor="middle">10,4 m²</text>
+</g>
+<g class="room" id="room-sypialnia" data-room="sypialnia" data-cat="szafy" tabindex="0" role="button" aria-pressed="false" aria-label="Sypialnia">
+<rect class="room__hit" x="330" y="290" width="290" height="130"/>
+<g class="room__furn"><rect class="furn" style="--m:#D8CEC1;--k:0" x="336" y="300" width="32" height="114" rx="1.5"/><path class="detail" style="--k:0" d="M336 338h32M336 376h32"/><rect class="furn" style="--m:#CFC6BA;--k:1" x="440" y="294" width="156" height="8" rx="0"/><rect class="furn" style="--m:#FF914D;--k:1" x="510" y="294" width="16" height="8" rx="0"/><rect class="furn" style="--m:#C8955C;--k:2" x="456" y="318" width="20" height="20" rx="1.5"/><rect class="furn" style="--m:#C8955C;--k:2" x="560" y="318" width="20" height="20" rx="1.5"/><rect class="furn" style="--m:#CFC6BA;--k:3" x="478" y="306" width="80" height="104" rx="3"/><rect class="furn" style="--m:#FBFAF7;--k:4" x="486" y="312" width="29" height="16" rx="4"/><rect class="furn" style="--m:#FBFAF7;--k:4" x="521" y="312" width="29" height="16" rx="4"/><path class="furn" style="--m:#FBFAF7;--k:4" d="M478 346h80v64h-80z"/></g>
+<path class="room__mark" d="M339 315V299H355M595 299H611V315M611 395V411H595M355 411H339V395"/>
+<text class="room__name" x="412" y="398" text-anchor="middle">Sypialnia</text>
+<text class="room__area" x="412" y="413" text-anchor="middle">15,1 m²</text>
+</g>
+<g class="room" id="room-gabinet" data-room="gabinet" data-cat="inne" tabindex="0" role="button" aria-pressed="false" aria-label="Gabinet">
+<rect class="room__hit" x="20" y="260" width="310" height="160"/>
+<g class="room__furn"><path class="furn" style="--m:#C8955C;--k:0" d="M24 302h30v80h96v34h-126z"/><circle class="furn" style="--m:#3A3733;--k:1" cx="86" cy="360" r="11"/><rect class="furn" style="--m:#D8CEC1;--k:2" x="96" y="264" width="126" height="16" rx="1.5"/><rect class="furn" style="--m:#FBFAF7;--k:3" x="262" y="280" width="62" height="134" rx="0"/><path class="detail" style="--k:3" d="M262 294h62M262 308h62M262 322h62M262 336h62M262 350h62M262 364h62M262 378h62M262 392h62"/><path class="detail" style="--k:4" d="M293 406V286M287 296l6-10 6 10"/></g>
+<path class="room__mark" d="M29 285V269H45M305 269H321V285M321 395V411H305M45 411H29V395"/>
+<text class="room__name" x="182" y="398" text-anchor="middle">Gabinet</text>
+<text class="room__area" x="182" y="413" text-anchor="middle">19,8 m²</text>
+</g>
+<g class="walls" aria-hidden="true">
+<path class="wall wall--out" d="M620 222V20H20V420H620V268"/>
+<path class="wall wall--in" d="M330 20V70M330 180V210M330 250V420M490 20V200M330 200H345M385 200H515M555 200H620M20 260H240M285 260H330M330 290H350M392 290H620"/>
+<rect class="win__gap" x="90" y="16" width="160" height="8"/>
+<path class="win" d="M90 18.5H250M90 21.5H250M90 16V24M250 16V24"/>
+<rect class="win__gap" x="365" y="16" width="100" height="8"/>
+<path class="win" d="M365 18.5H465M365 21.5H465M365 16V24M465 16V24"/>
+<rect class="win__gap" x="530" y="16" width="55" height="8"/>
+<path class="win" d="M530 18.5H585M530 21.5H585M530 16V24M585 16V24"/>
+<rect class="win__gap" x="16" y="92" width="8" height="108"/>
+<path class="win" d="M18.5 92V200M21.5 92V200M16 92H24M16 200H24"/>
+<rect class="win__gap" x="400" y="416" width="160" height="8"/>
+<path class="win" d="M400 418.5H560M400 421.5H560M400 416V424M560 416V424"/>
+<rect class="win__gap" x="50" y="416" width="100" height="8"/>
+<path class="win" d="M50 418.5H150M50 421.5H150M50 416V424M150 416V424"/>
+<path class="door" d="M620 268H574M620 222A46 46 0 0 0 574 268"/>
+<path class="door" d="M555 200V240M515 200A40 40 0 0 0 555 240"/>
+<path class="door" d="M350 290V332M392 290A42 42 0 0 1 350 332"/>
+<path class="door" d="M285 260V305M240 260A45 45 0 0 0 285 305"/>
+</g>
+</svg>
           </div>
 
-          <div class="show" id="offerShow">
-            <div class="show__frame" aria-live="off">
-              <figure class="show__slide is-active"><img alt="" width="414" height="414"><figcaption></figcaption></figure>
-              <figure class="show__slide"><img alt="" width="414" height="414"><figcaption></figcaption></figure>
-            </div>
-            <div class="show__bar">
-              <span class="show__count" id="showCount"></span>
-              <span class="show__progress" aria-hidden="true"><i id="showProgress"></i></span>
-              <button class="arrow arrow--small" id="showPrev" type="button" aria-label="Poprzednie zdjęcie">
-                <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M15 5l-7 7 7 7" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </button>
-              <button class="arrow arrow--small" id="showNext" type="button" aria-label="Następne zdjęcie">
-                <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </button>
-            </div>
+          <div class="rooms__info" id="roomInfo" aria-live="polite">
+            <h3 id="roomTitle">Kuchnia</h3>
+            <p id="roomDesc">Robimy kuchnię pod Twoje pomieszczenie, co do centymetra: w zabudowie, w kształcie litery L lub U, z wyspą albo półwyspem. Dobieramy fronty, blaty i podświetlenie, a lodówkę, piekarnik i zmywarkę chowamy w zabudowie.</p>
+            <ul class="rooms__photos" id="roomPhotos"></ul>
+            <button class="btn btn--ghost" id="roomMore" type="button">Zobacz wszystkie kuchnie</button>
           </div>
         </div>
       </div>
@@ -332,6 +379,7 @@
           <div>
             <h2>Nasze realizacje</h2>
             <p>Wybrane meble z domów i mieszkań naszych klientów.</p>
+            <p class="demo-note" id="demoNote" hidden>Widzisz zmiany z panelu zapisane na tym urządzeniu. Inni odwiedzający widzą galerię bez nich.</p>
           </div>
           <div class="filters" role="group" aria-label="Filtruj realizacje">
             <button class="chip is-active" data-filter="all" aria-pressed="true">Wszystkie</button>
@@ -527,6 +575,7 @@
     </button>
   </dialog>
 
+  <script src="js/demo-store.js" defer></script>
   <script src="js/main.js" defer></script>
 </body>
 </html>

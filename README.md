@@ -9,47 +9,35 @@ Statyczna strona (HTML, CSS, JS) na GitHub Pages, z automatycznym feedem postów
 
 ## Struktura
 - `index.html`, `css/style.css`, `js/main.js`: strona
-- `data/realizacje.json`: galeria i zdjęcia w "Co dla Ciebie zrobimy" (edytuje je panel)
-- `img/realizacje/`, `video/`: zdjęcia i filmy dodane z panelu
+- `data/realizacje.json`: galeria i zdjęcia przy planie mieszkania w "Co dla Ciebie zrobimy"
 - `admin/`: panel do dodawania realizacji (wejście: link "Panel" na samym dole strony)
+- `js/demo-store.js`: zapis panelu na urządzeniu (wersja pokazowa)
+- `img/realizacje/`, `video/`: miejsce na zdjęcia i filmy po przeniesieniu na serwer
 - `data/facebook.json`, `img/fb/`, `data/instagram.json`, `img/ig/`: posty pobierane automatem
 - `scripts/fetch_facebook.py` i `.github/workflows/facebook.yml`: automat Facebook i Instagram
 
-## Panel: dodawanie realizacji z telefonu
+## Panel: dodawanie realizacji z telefonu (wersja pokazowa)
 Adres: `/admin/` (link "Panel" w stopce). Hasło: `12345`, zmiana w `admin/config.js`.
 
-Panel zmniejsza zdjęcia na telefonie (1600 px i miniatura 640 px), filmom robi kadr
-podglądu i zapisuje wszystko w repozytorium jednym commitem. GitHub Pages publikuje
-zmianę po 1-2 minutach. W panelu można też zmienić opis, kategorię, kolejność,
-zaznaczyć "Duży kafelek" albo usunąć realizację.
+Panel zmniejsza zdjęcia na telefonie (1600 px i miniatura 640 px), filmom robi kadr podglądu.
+W wersji pokazowej wszystko zapisuje się w przeglądarce (IndexedDB) na tym jednym urządzeniu,
+a strona otwarta na tym urządzeniu od razu pokazuje zmiany w galerii i na planie mieszkania.
+Inni odwiedzający widzą galerię z `data/realizacje.json`. "Przywróć galerię ze strony" na dole
+panelu usuwa zmiany z urządzenia.
 
-Na stronie galeria wczytuje tylko pierwszą porcję kafelków (małe miniatury),
+Uwaga: Safari może wyczyścić dane strony po kilku dniach nieużywania, więc wersja pokazowa
+służy do prezentacji, nie do trwałego przechowywania.
+
+Po przeniesieniu na serwer wystarczy podmienić `js/demo-store.js` na zapis przez API serwera
+(np. mały skrypt PHP przyjmujący pliki). Panel i strona zostają bez zmian.
+
+Galeria na stronie wczytuje tylko pierwszą porcję kafelków (małe miniatury),
 pełne zdjęcia i filmy pobierają się dopiero po otwarciu.
 
-### Jednorazowo: klucz dostępu dla telefonu klientki
-1. GitHub > Settings > Developer settings > Personal access tokens > Fine-grained tokens >
-   Generate new token.
-2. Nazwa np. "Panel Meble Grosman", ważność najdłuższa możliwa (zapisz sobie datę odnowienia).
-3. Repository access: Only select repositories > `MebleGrosman`.
-4. Repository permissions > Contents: **Read and write** (Metadata: Read doda się sam).
-5. Generate token i skopiuj klucz.
-6. Na telefonie klientki otwórz panel, wpisz hasło i wklej klucz. Można też wysłać link
-   `https://dominikszewczyk224180.github.io/MebleGrosman/admin/#klucz=TU_KLUCZ`:
-   klucz zapisze się na telefonie i zniknie z adresu. Bezpieczniej zrobić to na miejscu,
-   bo link z kluczem zostaje w historii czatu.
-7. Zgubiony telefon albo koniec współpracy: usuń token na GitHubie i panel od razu traci dostęp.
-
-### Bezpieczeństwo
-Hasło to tylko zamek na drzwiach panelu, bo kod strony może podejrzeć każdy.
-Zmiany da się zrobić wyłącznie z kluczem, który jest zapisany tylko na telefonie klientki
-i ma dostęp do jednego repozytorium.
-
 ### Filmy
-- Limit 50 MB na film (`maxVideoMB` w `admin/config.js`). Cała strona na GitHub Pages może
-  mieć do ok. 1 GB, panel pokazuje zajęte miejsce.
+- Limit 50 MB na film (`maxVideoMB` w `admin/config.js`).
 - iPhone: Ustawienia > Aparat > Formaty > "Najbardziej zgodne". Wtedy filmy odtwarzają się
   też na Androidzie i Windowsie.
-- Długie filmy lepiej wrzucać na Facebooka albo YouTube.
 
 ## Facebook i Instagram: jak to działa
 Sekcja "Nowości prosto z naszego Facebooka" pokazuje profil w telefonie i działa od razu,

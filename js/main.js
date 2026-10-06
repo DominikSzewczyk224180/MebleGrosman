@@ -230,7 +230,8 @@
   let filter = "all";
   let rendered = 0;
 
-  const mediaPath = (p) => typeof p === "string" && /^(img|video)\/[\w./-]+$/.test(p) && !p.includes("..");
+  const mediaPath = (p) => typeof p === "string" &&
+    ((/^(img|video)\/[\w./-]+$/.test(p) && !p.includes("..")) || p.indexOf("blob:") === 0);
   const validItem = (it) => it && (it.type === "image" || it.type === "video") && CATS[it.cat] && mediaPath(it.src);
   const listFor = (f) => realizacje.filter((it) => f === "all" || it.cat === f);
 
@@ -339,153 +340,134 @@
     if (btn) btn.focus({ preventScroll: true });
   });
 
-  /* ---------- Oferta: zakładki i pokaz zdjęć z danej kategorii ---------- */
-  const OFFER = {
-    kuchnie: {
-      title: "Kuchnie na wymiar",
-      desc: "Projektujemy kuchnie pod konkretne pomieszczenie: w zabudowie, w kształcie litery L i U, z wyspą albo półwyspem. Wykorzystujemy każdy centymetr, także pod skosami, a fronty, blaty i oświetlenie dobieramy do stylu wnętrza.",
-      points: ["Fronty matowe, w połysku, drewnopodobne i lamelowe", "Wysokie słupki na piekarnik, lodówkę i schowki", "Podświetlenie LED pod szafkami i w witrynach"],
-      more: "Zobacz wszystkie kuchnie"
-    },
-    szafy: {
-      title: "Szafy i zabudowy",
-      desc: "Szafy wnękowe i wolnostojące od podłogi do sufitu, zabudowy przedpokoi i sypialni. Wnętrze szafy planujemy pod Twoje rzeczy, a fronty dopasowujemy do reszty mieszkania, żeby wszystko tworzyło jedną całość.",
-      points: ["Szafy wnękowe i garderoby", "Przedpokoje z konsolami i panelami lamelowymi", "Zabudowy nad łóżkiem i wokół niego"],
-      more: "Zobacz szafy i zabudowy"
-    },
-    lazienki: {
-      title: "Meble łazienkowe",
-      desc: "Szafki pod umywalkę, wysokie słupki i zabudowy stelaża WC z materiałów odpornych na wilgoć. Łazienka zyskuje miejsce na wszystko, a przy tym wygląda spokojnie i spójnie.",
-      points: ["Szafki pod umywalkę z szufladami", "Zabudowy stelaża WC z półkami", "Wysokie słupki i regały na ręczniki"],
-      more: "Zobacz łazienki"
+  /* ---------- Oferta: interaktywny plan mieszkania ---------- */
+  const ROOMS = {
+    kuchnia: {
+      cat: "kuchnie", title: "Kuchnia", more: "Zobacz wszystkie kuchnie",
+      desc: "Robimy kuchnię pod Twoje pomieszczenie, co do centymetra: w zabudowie, w kształcie litery L lub U, z wyspą albo półwyspem. Dobieramy fronty, blaty i podświetlenie, a lodówkę, piekarnik i zmywarkę chowamy w zabudowie."
     },
     salon: {
-      title: "Salon i RTV",
-      desc: "Ściany RTV, szafki, witryny z podświetleniem i zabudowy z lamelami. Robimy meble, które spinają salon w jedną całość i chowają wszystko, co nie musi być na widoku.",
-      points: ["Szafki i ściany RTV", "Witryny z podświetleniem i ryflowanym szkłem", "Panele lamelowe na ścianę"],
-      more: "Zobacz realizacje do salonu"
+      cat: "salon", title: "Salon", more: "Zobacz realizacje do salonu",
+      desc: "Ściana RTV, witryny z podświetleniem i panele lamelowe. Meble, które porządkują salon i chowają wszystko, co nie musi być na widoku."
     },
-    inne: {
-      title: "Schody, biura i nietypowe projekty",
-      desc: "Zabudowy pod schodami, biurka i meble do firm. Jeśli masz nietypowy pomysł albo trudne miejsce, przyjedziemy, zmierzymy i zaproponujemy rozwiązanie.",
-      points: ["Zabudowy pod schodami z szufladami", "Biurka i meble biurowe", "Projekty na indywidualne zamówienie"],
-      more: "Zobacz schody, biura i inne"
+    lazienka: {
+      cat: "lazienki", title: "Łazienka", more: "Zobacz łazienki",
+      desc: "Szafki pod umywalkę, wysokie słupki i zabudowa stelaża WC. Z płyt odpornych na wilgoć i dopasowane do każdej wnęki, nawet tej najmniejszej."
+    },
+    przedpokoj: {
+      cat: "szafy", title: "Przedpokój", more: "Zobacz szafy i zabudowy", prefer: /przedpok/i,
+      desc: "Szafy wnękowe, konsole i schowki na buty. W przedpokoju liczy się każdy centymetr, więc wykorzystujemy go od podłogi aż po sufit."
+    },
+    sypialnia: {
+      cat: "szafy", title: "Sypialnia", more: "Zobacz szafy i zabudowy", prefer: /sypial|szaf/i,
+      desc: "Szafy od podłogi do sufitu, garderoby i zabudowa wokół łóżka. Wnętrze szafy planujemy pod Twoje ubrania, a fronty dobieramy do reszty mieszkania."
+    },
+    gabinet: {
+      cat: "inne", title: "Gabinet i schody", more: "Zobacz schody, biura i inne",
+      desc: "Biurka, meble do biura i zabudowy pod schodami z szufladami. Masz nietypowy pomysł albo trudne miejsce? Przyjedziemy, zmierzymy i zaproponujemy rozwiązanie."
     }
   };
 
-  const tabs = $$(".tab", $("#offerTabs"));
-  const offerPanel = $("#offerPanel");
-  const offerText = $("#offerText");
-  const offerTitle = $("#offerTitle");
-  const offerDesc = $("#offerDesc");
-  const offerPoints = $("#offerPoints");
-  const offerMore = $("#offerMore");
-  const showEl = $("#offerShow");
-  const slidesEls = $$(".show__slide", showEl);
-  const showCount = $("#showCount");
-  const showProgress = $("#showProgress");
-  const SLIDE_MS = 4800;
-  let offerCat = "kuchnie";
-  let offerList = [];
-  let offerIndex = 0;
-  let activeSlide = 0;
-  let showVisible = false;
-  let showHover = false;
+  const roomEls = $$(".room");
+  const roomInfo = $("#roomInfo");
+  const roomTitle = $("#roomTitle");
+  const roomDesc = $("#roomDesc");
+  const roomPhotos = $("#roomPhotos");
+  const roomMore = $("#roomMore");
+  let currentRoom = "kuchnia";
 
-  showProgress.style.setProperty("--dur", SLIDE_MS + "ms");
-
-  const slidesFor = (cat) => {
-    const imgs = realizacje.filter((it) => it.cat === cat && it.type === "image");
-    return [...imgs.filter((i) => i.featured), ...imgs.filter((i) => !i.featured)].slice(0, 8);
+  const photosFor = (room) => {
+    const r = ROOMS[room];
+    const score = (it) => (r.prefer && r.prefer.test(it.title || "") ? 2 : 0) + (it.featured ? 1 : 0);
+    return realizacje
+      .filter((it) => it.cat === r.cat && it.type === "image")
+      .map((it, i) => ({ it, i, s: score(it) }))
+      .sort((x, y) => y.s - x.s || x.i - y.i)
+      .map((x) => x.it);
   };
 
-  const updatePause = () => showEl.classList.toggle("is-paused", showHover || !showVisible || document.hidden);
-
-  const restartProgress = () => {
-    showProgress.classList.remove("is-running");
-    void showProgress.offsetWidth;
-    if (!reduceMotion && offerList.length > 1) showProgress.classList.add("is-running");
-  };
-
-  const showSlide = (i) => {
-    if (!offerList.length) return;
-    offerIndex = (i + offerList.length) % offerList.length;
-    const it = offerList[offerIndex];
-    const nextFig = slidesEls[1 - activeSlide];
-    const img = $("img", nextFig);
-    img.removeAttribute("srcset");
-    img.alt = it.title || "";
-    setSources(img, it, "(max-width: 980px) 92vw, 540px");
-    $("figcaption", nextFig).textContent = it.title || "";
-    const swap = () => {
-      slidesEls[activeSlide].classList.remove("is-active");
-      nextFig.classList.add("is-active");
-      activeSlide = 1 - activeSlide;
-    };
-    if (img.complete && img.naturalWidth) swap();
-    else { img.onload = swap; img.onerror = swap; }
-    showCount.textContent = `${offerIndex + 1} / ${offerList.length}`;
-    const n = offerList[(offerIndex + 1) % offerList.length];
-    if (n && n !== it) { const pre = new Image(); pre.src = n.thumb && mediaPath(n.thumb) ? n.thumb : n.src; }
-    restartProgress();
-  };
-
-  const fillOfferText = (cat) => {
-    const o = OFFER[cat];
-    offerTitle.textContent = o.title;
-    offerDesc.textContent = o.desc;
-    offerPoints.innerHTML = "";
-    o.points.forEach((p) => offerPoints.appendChild(el("li", null, p)));
-    const n = realizacje.filter((it) => it.cat === cat).length;
-    offerMore.textContent = n ? `${o.more} (${n})` : o.more;
-    offerMore.hidden = !n;
-  };
-
-  const setOfferCat = (cat, focusTab) => {
-    if (!OFFER[cat]) return;
-    offerCat = cat;
-    tabs.forEach((t) => {
-      const on = t.dataset.cat === cat;
-      t.setAttribute("aria-selected", String(on));
-      t.tabIndex = on ? 0 : -1;
-      if (on && focusTab) t.focus();
+  const renderRoomPhotos = (room) => {
+    const list = photosFor(room);
+    const shown = list.slice(0, 3);
+    roomPhotos.innerHTML = "";
+    roomPhotos.dataset.n = String(shown.length);
+    shown.forEach((it, k) => {
+      const li = el("li");
+      const b = el("button");
+      b.type = "button";
+      b.setAttribute("aria-label", "Powiększ zdjęcie: " + ROOMS[room].title);
+      if (typeof it.color === "string" && /^#[0-9a-f]{6}$/i.test(it.color)) b.style.backgroundColor = it.color;
+      const img = el("img", "is-loading");
+      img.alt = "";
+      img.loading = "lazy";
+      img.decoding = "async";
+      img.addEventListener("load", () => img.classList.remove("is-loading"), { once: true });
+      img.addEventListener("error", () => img.classList.remove("is-loading"), { once: true });
+      setSources(img, it, k === 0 && shown.length === 3 ? "(max-width: 980px) 62vw, 330px" : "(max-width: 980px) 46vw, 240px");
+      b.appendChild(img);
+      b.addEventListener("click", () => lightbox.open(list.map(lbItem), k));
+      li.appendChild(b);
+      roomPhotos.appendChild(li);
     });
-    offerPanel.setAttribute("aria-labelledby", `tab-${cat}`);
-    offerText.classList.add("is-changing");
-    setTimeout(() => {
-      fillOfferText(cat);
-      offerText.classList.remove("is-changing");
-    }, reduceMotion ? 0 : 200);
-    offerList = slidesFor(cat);
-    showEl.hidden = !offerList.length;
-    showSlide(0);
+    const n = realizacje.filter((it) => it.cat === ROOMS[room].cat).length;
+    roomMore.textContent = n ? `${ROOMS[room].more} (${n})` : ROOMS[room].more;
+    roomMore.hidden = !n;
   };
 
-  tabs.forEach((t, i) => {
-    t.addEventListener("click", () => setOfferCat(t.dataset.cat));
-    t.addEventListener("keydown", (e) => {
-      const keys = { ArrowRight: i + 1, ArrowLeft: i - 1, Home: 0, End: tabs.length - 1 };
-      if (!(e.key in keys)) return;
-      e.preventDefault();
-      const k = (keys[e.key] + tabs.length) % tabs.length;
-      setOfferCat(tabs[k].dataset.cat, true);
+  const selectRoom = (room) => {
+    if (!ROOMS[room]) return;
+    const changed = room !== currentRoom || !$(".room.is-active");
+    currentRoom = room;
+    roomEls.forEach((g) => {
+      const on = g.dataset.room === room;
+      g.classList.toggle("is-active", on);
+      g.setAttribute("aria-pressed", String(on));
+    });
+    if (!changed) return;
+    roomInfo.classList.add("is-changing");
+    setTimeout(() => {
+      roomTitle.textContent = ROOMS[room].title;
+      roomDesc.textContent = ROOMS[room].desc;
+      renderRoomPhotos(room);
+      roomInfo.classList.remove("is-changing");
+    }, reduceMotion ? 0 : 180);
+  };
+
+  roomEls.forEach((g) => {
+    g.addEventListener("click", () => selectRoom(g.dataset.room));
+    g.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); selectRoom(g.dataset.room); }
     });
   });
-  $("#showPrev").addEventListener("click", () => showSlide(offerIndex - 1));
-  $("#showNext").addEventListener("click", () => showSlide(offerIndex + 1));
-  showProgress.addEventListener("animationend", () => showSlide(offerIndex + 1));
-  showEl.addEventListener("mouseenter", () => { showHover = true; updatePause(); });
-  showEl.addEventListener("mouseleave", () => { showHover = false; updatePause(); });
-  document.addEventListener("visibilitychange", updatePause);
-  if ("IntersectionObserver" in window) {
-    new IntersectionObserver(([en]) => { showVisible = en.isIntersecting; updatePause(); }, { threshold: .25 }).observe(showEl);
-  } else {
-    showVisible = true;
-  }
-  offerMore.addEventListener("click", () => {
-    setFilter(offerCat);
+  roomMore.addEventListener("click", () => {
+    setFilter(ROOMS[currentRoom].cat);
     $("#realizacje").scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth" });
   });
+
+  // Gdy plan pojawia się pierwszy raz: pomieszczenia podświetlają się po kolei (widać, że da się klikać),
+  // potem kuchnia "materializuje się" na oczach odwiedzającego.
+  const planEl = $("#plan");
+  if (!reduceMotion && "IntersectionObserver" in window) {
+    const io = new IntersectionObserver(([en]) => {
+      if (!en.isIntersecting) return;
+      io.disconnect();
+      if ($(".room.is-active")) return;
+      const order = ["salon", "kuchnia", "lazienka", "przedpokoj", "sypialnia", "gabinet"];
+      order.forEach((r, i) => setTimeout(() => {
+        const g = $(`#room-${r}`);
+        g.classList.add("is-hint");
+        setTimeout(() => g.classList.remove("is-hint"), 420);
+      }, 200 + i * 150));
+      setTimeout(() => { if (!$(".room.is-active")) selectRoom("kuchnia"); }, 200 + order.length * 150 + 250);
+    }, { threshold: .45 });
+    io.observe(planEl);
+  } else {
+    roomEls.forEach((g) => {
+      const on = g.dataset.room === currentRoom;
+      g.classList.toggle("is-active", on);
+      g.setAttribute("aria-pressed", String(on));
+    });
+  }
 
   /* ---------- Wczytanie realizacji ---------- */
   (async () => {
@@ -496,6 +478,17 @@
       realizacje = (Array.isArray(data.items) ? data.items : []).filter(validItem);
     } catch (err) {
       realizacje = [];
+    }
+    // wersja pokazowa: zmiany z panelu zapisane na tym urządzeniu zastępują dane z serwera
+    if (window.MGDemo && window.MGDemo.active()) {
+      try {
+        const local = await window.MGDemo.loadData();
+        if (local && Array.isArray(local.items)) {
+          const resolved = await window.MGDemo.resolve(local);
+          realizacje = resolved.items.filter(validItem);
+          $("#demoNote").hidden = false;
+        }
+      } catch (err) { /* zostają dane z serwera */ }
     }
     // liczby przy filtrach i ukrycie pustych kategorii
     chips.forEach((c) => {
@@ -508,10 +501,7 @@
       badge.textContent = n;
     });
     renderGallery();
-    fillOfferText(offerCat);
-    offerList = slidesFor(offerCat);
-    showEl.hidden = !offerList.length;
-    showSlide(0);
+    renderRoomPhotos(currentRoom);
   })();
 
   /* ---------- Facebook: profil w telefonie ----------
