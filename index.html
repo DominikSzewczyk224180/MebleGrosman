@@ -8,6 +8,7 @@
   <meta name="theme-color" content="#F2F1EE">
   <link rel="icon" type="image/png" href="img/favicon.png">
   <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="img/icon-512.png">
 
   <meta property="og:type" content="website">
   <meta property="og:title" content="Meble Grosman | Meble na wymiar, Pszów">
@@ -53,8 +54,7 @@
   <header class="top" id="naglowek">
     <div class="wrap top__inner">
       <a class="brand" href="./" aria-label="Meble Grosman, strona główna">
-        <img src="img/logo-mark.png" alt="" width="46" height="52">
-        <span class="brand__name">Meble<br>Grosman</span>
+        <img class="brand__logo" src="img/logo-header.png" alt="Meble Grosman" width="306" height="112">
       </a>
       <nav class="nav" id="nav" aria-label="Główna nawigacja">
         <a href="#oferta">Oferta</a>
@@ -500,17 +500,38 @@
 
     <!-- KONTAKT -->
     <section class="contact" id="kontakt">
-      <div class="wrap contact__grid">
-        <div class="contact__info">
+      <div class="wrap">
+        <div class="section-head section-head--split contact__head">
           <h2>Porozmawiajmy o Twoich meblach</h2>
-          <p class="contact__lead">Najszybciej złapiesz nas telefonicznie. Możesz też przyjechać do nas na Andersa 6 w Pszowie.</p>
+          <p>Zadzwoń lub napisz, a odpowiemy na pytania i umówimy pomiar. Zapraszamy też do naszej siedziby przy ul. Andersa 6 w Pszowie.</p>
+        </div>
 
-          <a class="contact__phone" href="tel:+48502307043">502 307 043</a>
+          <div class="reach">
+            <div class="reach__card">
+              <h3>Telefon</h3>
+              <a class="reach__value" href="tel:+48502307043">502 307 043</a>
+              <p class="reach__note">Pon.–pt. 9:00–17:00, sob. 9:00–13:00</p>
+              <div class="reach__actions">
+                <a class="btn" href="tel:+48502307043">Zadzwoń</a>
+              </div>
+            </div>
+            <div class="reach__card">
+              <h3>E-mail</h3>
+              <a class="reach__value reach__value--mail" href="mailto:sklepgrosman@gmail.com">sklepgrosman@<wbr>gmail.com</a>
+              <p class="reach__note">Opisz, czego potrzebujesz. Możesz od razu dołączyć zdjęcia i wymiary pomieszczenia.</p>
+              <div class="reach__actions">
+                <a class="btn" id="mailBtn" href="mailto:sklepgrosman@gmail.com?subject=Zapytanie%20ze%20strony%20meblegrosman.pl&amp;body=Dzie%C5%84%20dobry%2C%0D%0A%0D%0Ainteresuj%C4%85%20mnie%20meble%20na%20wymiar%3A%20%0D%0A%0D%0APomieszczenie%20i%20przybli%C5%BCone%20wymiary%3A%20%0D%0AMiejscowo%C5%9B%C4%87%3A%20%0D%0ATelefon%20kontaktowy%3A%20%0D%0A%0D%0APozdrawiam">Napisz do nas</a>
+                <button class="btn btn--ghost btn--small" id="copyMail" type="button" data-email="sklepgrosman@gmail.com">Skopiuj adres</button>
+              </div>
+            </div>
+          </div>
 
+        <div class="contact__grid">
+          <div class="contact__info">
           <dl class="contact__list">
-            <div><dt>E-mail</dt><dd><a href="mailto:sklepgrosman@gmail.com">sklepgrosman@gmail.com</a></dd></div>
             <div><dt>Adres</dt><dd>ul. Władysława Andersa 6<br>44-370 Pszów</dd></div>
             <div><dt>Facebook</dt><dd><a href="https://www.facebook.com/meblegrosman" target="_blank" rel="noopener">facebook.com/meblegrosman</a></dd></div>
+            <div><dt>Instagram</dt><dd><a href="https://www.instagram.com/meblenawymiar_dombezchemii/" target="_blank" rel="noopener">@meblenawymiar_<wbr>dombezchemii</a></dd></div>
           </dl>
 
           <div class="hours">
@@ -527,11 +548,12 @@
               </tbody>
             </table>
           </div>
-        </div>
+          </div>
 
         <div class="contact__map">
           <iframe title="Mapa dojazdu do Meble Grosman, Andersa 6, Pszów" src="https://maps.google.com/maps?q=Meble%20Grosman%2C%20W%C5%82adys%C5%82awa%20Andersa%206%2C%2044-370%20Psz%C3%B3w&z=15&output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
           <a class="btn btn--dark contact__route" href="https://www.google.com/maps/dir/?api=1&destination=W%C5%82adys%C5%82awa+Andersa+6%2C+44-370+Psz%C3%B3w" target="_blank" rel="noopener">Wyznacz trasę</a>
+        </div>
         </div>
       </div>
     </section>
@@ -540,11 +562,8 @@
   <footer class="foot">
     <div class="wrap foot__inner">
       <div class="foot__brand">
-        <img src="img/logo-mark.png" alt="" width="34" height="38">
-        <div>
-          <strong>Meble Grosman</strong>
-          <span>Producent mebli na wymiar</span>
-        </div>
+        <img src="img/logo-header-light.png" alt="Meble Grosman" width="306" height="112">
+        <span>Producent mebli na wymiar</span>
       </div>
       <p class="foot__meta">ul. Władysława Andersa 6, 44-370 Pszów<br>
         <a href="tel:+48502307043">502 307 043</a>, <a href="mailto:sklepgrosman@gmail.com">sklepgrosman@gmail.com</a></p>

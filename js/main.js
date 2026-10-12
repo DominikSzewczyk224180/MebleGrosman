@@ -705,6 +705,29 @@
     } catch (err) { /* zostaje sama karta z linkiem */ }
   })();
 
+  /* ---------- Kontakt: kopiowanie adresu e-mail (gdy na komputerze nie ma programu pocztowego) ---------- */
+  const copyBtn = $("#copyMail");
+  if (copyBtn) {
+    copyBtn.addEventListener("click", async () => {
+      const addr = copyBtn.dataset.email;
+      let ok = false;
+      try { await navigator.clipboard.writeText(addr); ok = true; } catch (err) {
+        const t = el("textarea");
+        t.value = addr;
+        t.setAttribute("readonly", "");
+        t.style.position = "fixed";
+        t.style.opacity = "0";
+        document.body.appendChild(t);
+        t.select();
+        try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+        t.remove();
+      }
+      copyBtn.textContent = ok ? "Skopiowano" : addr;
+      clearTimeout(copyBtn._t);
+      copyBtn._t = setTimeout(() => { copyBtn.textContent = "Skopiuj adres"; }, 2200);
+    });
+  }
+
   /* ---------- Godziny otwarcia ---------- */
   const hours = { 1: [9, 17], 2: [9, 17], 3: [9, 17], 4: [9, 17], 5: [9, 17], 6: [9, 13], 0: null };
   const status = $("#openStatus");

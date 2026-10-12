@@ -51,6 +51,7 @@ p { margin: 0; }
   backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--line);
 }
+.bar__brand img { width: auto; height: 36px; }
 .bar__brand {
   display: flex;
   align-items: center;
