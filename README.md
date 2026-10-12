@@ -1,41 +1,40 @@
-# Meble Grosman: strona www
+# Meble Grosman: strona www (front)
 
-Statyczna strona (HTML, CSS, JS) na GitHub Pages, z automatycznym feedem postów z Facebooka.
+Statyczna strona na GitHub Pages pod adresem `https://meblegrosman.pl`.
+Panel, galeria i formularz korzystają z backendu na serwerze SEOHOST (`https://api.meblegrosman.pl/`,
+osobna paczka `meble-grosman-api`). Adres backendu jest w `js/config.js`.
 
 ## Wdrożenie
-1. Wrzuć zawartość tego folderu do katalogu głównego repozytorium (razem z ukrytym folderem `.github`).
-2. Settings > Pages > Source: "Deploy from a branch", branch `main`, folder `/ (root)`.
-3. Własna domena: dodaj plik `CNAME` z nazwą domeny i ustaw rekordy DNS.
+1. Wrzuć zawartość tego folderu do repozytorium (razem z `.github` i plikiem `CNAME`).
+2. Settings > Pages: branch `main`, folder `/ (root)`. W "Custom domain" powinno być `meblegrosman.pl`
+   (z pliku `CNAME`). Gdy DNS zacznie działać, zaznacz "Enforce HTTPS".
+3. Rekordy DNS są w README backendu.
 
 ## Struktura
 - `index.html`, `css/style.css`, `js/main.js`: strona
-- `data/realizacje.json`: galeria i zdjęcia przy planie mieszkania w "Co dla Ciebie zrobimy"
+- `data/realizacje.json`: zapasowa kopia galerii (główne dane są na serwerze)
 - `admin/`: panel do dodawania realizacji (wejście: link "Panel" na samym dole strony)
-- `js/demo-store.js`: zapis panelu na urządzeniu (wersja pokazowa)
-- `img/realizacje/`, `video/`: miejsce na zdjęcia i filmy po przeniesieniu na serwer
+- `js/config.js`: adres backendu na serwerze SEOHOST
 - `data/facebook.json`, `img/fb/`, `data/instagram.json`, `img/ig/`: posty pobierane automatem
 - `scripts/fetch_facebook.py` i `.github/workflows/facebook.yml`: automat Facebook i Instagram
 
-## Panel: dodawanie realizacji z telefonu (wersja pokazowa)
-Adres: `/admin/` (link "Panel" w stopce). Hasło: `12345`, zmiana w `admin/config.js`.
+## Panel: dodawanie realizacji z telefonu
+Adres: `/admin/` (link "Panel" w stopce). Hasło ustawia się w `config.php` na serwerze.
 
-Panel zmniejsza zdjęcia na telefonie (1600 px i miniatura 640 px), filmom robi kadr podglądu.
-W wersji pokazowej wszystko zapisuje się w przeglądarce (IndexedDB) na tym jednym urządzeniu,
-a strona otwarta na tym urządzeniu od razu pokazuje zmiany w galerii i na planie mieszkania.
-Inni odwiedzający widzą galerię z `data/realizacje.json`. "Przywróć galerię ze strony" na dole
-panelu usuwa zmiany z urządzenia.
+Panel zmniejsza zdjęcia na telefonie (1600 px i miniatura 640 px), filmom robi kadr podglądu
+i wysyła je na serwer. Zmiany są od razu widoczne na stronie dla wszystkich.
+Strzałki na kafelkach zmieniają kolejność, dotknięcie zdjęcia otwiera edycję i usuwanie.
 
-Uwaga: Safari może wyczyścić dane strony po kilku dniach nieużywania, więc wersja pokazowa
-służy do prezentacji, nie do trwałego przechowywania.
+Galeria wczytuje tylko pierwszą porcję kafelków (małe miniatury), pełne zdjęcia i filmy
+pobierają się dopiero po otwarciu. Gdy serwer nie odpowiada, strona pokazuje kopię z
+`data/realizacje.json`.
 
-Po przeniesieniu na serwer wystarczy podmienić `js/demo-store.js` na zapis przez API serwera
-(np. mały skrypt PHP przyjmujący pliki). Panel i strona zostają bez zmian.
-
-Galeria na stronie wczytuje tylko pierwszą porcję kafelków (małe miniatury),
-pełne zdjęcia i filmy pobierają się dopiero po otwarciu.
+## Formularz kontaktowy
+"Napisz do nas" otwiera formularz, który wysyła e-mail przez serwer (`kontakt.php`).
+Odpowiedź z Gmaila trafia prosto do klienta. Bez JavaScriptu przycisk otwiera zwykły e-mail.
 
 ### Filmy
-- Limit 50 MB na film (`maxVideoMB` w `admin/config.js`).
+- Limit 50 MB na film (`max_video_mb` w `config.php` na serwerze).
 - iPhone: Ustawienia > Aparat > Formaty > "Najbardziej zgodne". Wtedy filmy odtwarzają się
   też na Androidzie i Windowsie.
 
@@ -85,8 +84,8 @@ pobiera też 3 ostatnie posty z Instagrama i pokazuje je jako miniatury pod kart
 - **Wersja Graph API.** Domyślnie v26.0. Zmienisz ją zmienną `FB_GRAPH_VERSION` w workflow.
 
 ## Zdjęcia
-Najprościej przez panel. Ręcznie: wpisy w `data/realizacje.json` (kolejność w pliku to kolejność
-na stronie, `featured: true` daje duży kafelek, `cat`: kuchnie, szafy, lazienki, salon, inne).
+Najprościej przez panel. Lista realizacji jest na serwerze w `data/realizacje.json` backendu
+(kolejność w pliku to kolejność na stronie, `featured: true` daje duży kafelek).
 Pierwsze zdjęcia mają 414x414 px, bo pochodzą z Facebooka. Oryginały w pełnej rozdzielczości
 najlepiej dodać przez panel, a stare wersje usunąć.
 

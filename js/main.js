@@ -230,8 +230,17 @@
   let filter = "all";
   let rendered = 0;
 
+  const API = typeof window.MG_API === "string" && /^https?:\/\//.test(window.MG_API) ? window.MG_API.replace(/\/?$/, "/") : "";
+  const MEDIA_RE = /^media\/\d{4}\/\d{2}\/[a-f0-9]{16}\.(webp|jpg|png|mp4|mov|webm|m4v)$/;
   const mediaPath = (p) => typeof p === "string" &&
-    ((/^(img|video)\/[\w./-]+$/.test(p) && !p.includes("..")) || p.indexOf("blob:") === 0);
+    ((/^(img|video)\/[\w./-]+$/.test(p) && !p.includes("..")) || (API !== "" && p.indexOf(API + "media/") === 0));
+  // "media/..." z serwera zamieniamy na pełny adres serwera
+  const resolveItem = (it) => {
+    ["src", "thumb", "poster"].forEach((k) => {
+      if (typeof it[k] === "string" && MEDIA_RE.test(it[k])) it[k] = API + it[k];
+    });
+    return it;
+  };
   const validItem = (it) => it && (it.type === "image" || it.type === "video") && CATS[it.cat] && mediaPath(it.src);
   const listFor = (f) => realizacje.filter((it) => f === "all" || it.cat === f);
 
@@ -469,26 +478,22 @@
     });
   }
 
-  /* ---------- Wczytanie realizacji ---------- */
+  /* ---------- Wczytanie realizacji: z serwera, a gdy nie odpowiada, z kopii na stronie ---------- */
   (async () => {
-    try {
-      const res = await fetch("data/realizacje.json", { cache: "no-cache" });
+    const load = async (url) => {
+      const res = await fetch(url, { cache: "no-cache" });
       if (!res.ok) throw new Error("HTTP " + res.status);
       const data = await res.json();
-      realizacje = (Array.isArray(data.items) ? data.items : []).filter(validItem);
+      if (!Array.isArray(data.items)) throw new Error("dane");
+      return data.items;
+    };
+    let items = [];
+    try {
+      items = API ? await load(API + "realizacje.php") : await load("data/realizacje.json");
     } catch (err) {
-      realizacje = [];
+      try { items = await load("data/realizacje.json"); } catch (e) { items = []; }
     }
-    // wersja pokazowa: zmiany z panelu zapisane na tym urządzeniu zastępują dane z serwera
-    if (window.MGDemo && window.MGDemo.active()) {
-      try {
-        const local = await window.MGDemo.loadData();
-        if (local && Array.isArray(local.items)) {
-          const resolved = await window.MGDemo.resolve(local);
-          realizacje = resolved.items.filter(validItem);
-        }
-      } catch (err) { /* zostają dane z serwera */ }
-    }
+    realizacje = items.map(resolveItem).filter(validItem);
     // liczby przy filtrach i ukrycie pustych kategorii
     chips.forEach((c) => {
       const f = c.dataset.filter;
@@ -725,6 +730,82 @@
       copyBtn.textContent = ok ? "Skopiowano" : addr;
       clearTimeout(copyBtn._t);
       copyBtn._t = setTimeout(() => { copyBtn.textContent = "Skopiuj adres"; }, 2200);
+    });
+  }
+
+  /* ---------- Formularz kontaktowy: wysyła e-mail przez serwer (kontakt.php) ---------- */
+  const contactDialog = $("#contactDialog");
+  const contactForm = $("#contactForm");
+  const mailBtn = $("#mailBtn");
+  const MAIL = "sklepgrosman@gmail.com";
+  let contactOpenedAt = 0;
+
+  if (API && mailBtn && contactDialog && typeof contactDialog.showModal === "function") {
+    const showError = (text, withMail) => {
+      const box = $("#contactError");
+      box.textContent = text;
+      if (withMail && text.indexOf(MAIL) < 0) {
+        box.appendChild(document.createTextNode(" Możesz też napisać bezpośrednio na "));
+        const a = el("a", null, MAIL);
+        a.href = "mailto:" + MAIL;
+        box.appendChild(a);
+        box.appendChild(document.createTextNode("."));
+      }
+      box.hidden = false;
+    };
+
+    mailBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      contactForm.hidden = false;
+      $("#contactDone").hidden = true;
+      $("#contactError").hidden = true;
+      contactOpenedAt = Date.now();
+      contactDialog.showModal();
+      setTimeout(() => contactForm.elements.name.focus(), 60);
+    });
+    const close = () => contactDialog.close();
+    $("#contactClose").addEventListener("click", close);
+    $("#contactOk").addEventListener("click", close);
+    contactDialog.addEventListener("click", (e) => { if (e.target === contactDialog) close(); });
+
+    contactForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const f = contactForm.elements;
+      const data = {
+        name: f.name.value.trim(),
+        email: f.email.value.trim(),
+        phone: f.phone.value.trim(),
+        topic: f.topic.value,
+        message: f.message.value.trim(),
+        website: f.website.value,
+        ts: contactOpenedAt
+      };
+      $("#contactError").hidden = true;
+      const digits = data.phone.replace(/\D/g, "");
+      if (data.message.length < 10) { showError("Napisz kilka słów o tym, czego potrzebujesz."); f.message.focus(); return; }
+      if (data.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) { showError("Sprawdź adres e-mail."); f.email.focus(); return; }
+      if (!data.email && digits.length < 9) { showError("Podaj e-mail albo numer telefonu, żebyśmy mogli odpowiedzieć."); f.email.focus(); return; }
+      const btn = $("#contactSend");
+      btn.disabled = true;
+      btn.textContent = "Wysyłam…";
+      try {
+        const res = await fetch(API + "kontakt.php", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data)
+        });
+        const out = await res.json().catch(() => ({}));
+        if (!res.ok || !out.ok) throw new Error(out.error || "");
+        contactForm.reset();
+        contactForm.hidden = true;
+        $("#contactDone").hidden = false;
+        $("#contactOk").focus();
+      } catch (err) {
+        showError(err.message || "Nie udało się wysłać wiadomości.", true);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Wyślij wiadomość";
+      }
     });
   }
 

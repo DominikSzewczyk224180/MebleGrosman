@@ -1,14 +1,13 @@
-/* Panel Meble Grosman, wersja pokazowa.
+/* Panel Meble Grosman
    Zdjęcia są zmniejszane na telefonie (duże 1600 px + miniatura 640 px), filmy dostają kadr podglądu,
-   a wszystko zapisuje się w przeglądarce na tym urządzeniu (js/demo-store.js).
-   Strona otwarta na tym samym urządzeniu od razu pokazuje zmiany.
-   Po przeniesieniu na serwer podmienia się tylko miejsce zapisu (MGDemo -> API serwera). */
+   a potem trafiają na serwer SEOHOST przez API (adres w js/config.js).
+   Zmiany są od razu widoczne na stronie dla wszystkich. */
 (() => {
   "use strict";
 
-  const CFG = Object.assign({ passwordSha256: "", maxVideoMB: 50 }, window.MG_ADMIN || {});
-  const Store = window.MGDemo;
-  const SESSION = "mg-admin-ok";
+  const API = String(window.MG_API || "").replace(/\/?$/, "/");
+  const TOKEN_KEY = "mg-admin-token";
+  let maxVideoMB = 50;
   const CATS = { kuchnie: "Kuchnie", szafy: "Szafy i zabudowy", lazienki: "Łazienki", salon: "Salon", inne: "Inne" };
   const SHORT = { kuchnie: "Kuchnie", szafy: "Szafy", lazienki: "Łazienki", salon: "Salon", inne: "Inne" };
   const FULL_SIDE = 1600;
@@ -41,24 +40,87 @@
     if (name === "login") setTimeout(() => $("#password").focus(), 50);
   };
 
-  const sha256 = async (text) => {
-    const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
-    return [...new Uint8Array(buf)].map((x) => x.toString(16).padStart(2, "0")).join("");
+  /* ---------- API serwera ---------- */
+  const getToken = () => {
+    const t = localStorage.getItem(TOKEN_KEY) || "";
+    const exp = parseInt(t.split(".")[0], 10);
+    return exp && exp * 1000 > Date.now() ? t : "";
+  };
+
+  const apiError = (status, message) => Object.assign(new Error(message || "Błąd serwera."), { status });
+
+  const api = async (file, body) => {
+    let res;
+    try {
+      res = await fetch(API + file, {
+        method: body ? "POST" : "GET",
+        headers: Object.assign({ "X-MG-Token": getToken() }, body ? { "Content-Type": "application/json" } : {}),
+        body: body ? JSON.stringify(body) : undefined,
+        cache: "no-store"
+      });
+    } catch (e) {
+      throw apiError(0, "Brak połączenia z serwerem. Sprawdź internet i spróbuj jeszcze raz.");
+    }
+    let data = null;
+    try { data = await res.json(); } catch (e) { data = null; }
+    if (!res.ok) throw apiError(res.status, data && data.error);
+    return data;
+  };
+
+  // wysyłka pliku z postępem (fetch nie podaje postępu wysyłania)
+  const uploadFile = (blob, name, kind, onProgress) => new Promise((resolve, reject) => {
+    const fd = new FormData();
+    fd.append("kind", kind);
+    fd.append("file", blob, name);
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", API + "upload.php");
+    xhr.setRequestHeader("X-MG-Token", getToken());
+    xhr.upload.onprogress = (ev) => { if (ev.lengthComputable && onProgress) onProgress(ev.loaded / ev.total); };
+    xhr.onload = () => {
+      let data = null;
+      try { data = JSON.parse(xhr.responseText); } catch (e) { data = null; }
+      if (xhr.status >= 200 && xhr.status < 300 && data && data.path) resolve(data.path);
+      else reject(apiError(xhr.status, (data && data.error) || (xhr.status === 413 ? "Plik jest za duży dla serwera." : "Nie udało się wysłać pliku.")));
+    };
+    xhr.onerror = () => reject(apiError(0, "Brak połączenia z serwerem. Sprawdź internet i spróbuj jeszcze raz."));
+    xhr.send(fd);
+  });
+
+  // wygasła sesja: wracamy do logowania z komunikatem
+  const handleAuth = (e) => {
+    if (e && e.status === 401) {
+      localStorage.removeItem(TOKEN_KEY);
+      showView("login");
+      $("#loginError").textContent = "Sesja wygasła. Zaloguj się ponownie.";
+      $("#loginError").hidden = false;
+      return true;
+    }
+    return false;
   };
 
   $("#loginForm").addEventListener("submit", async (e) => {
     e.preventDefault();
-    const ok = (await sha256($("#password").value)) === CFG.passwordSha256;
-    $("#loginError").hidden = ok;
-    if (!ok) return;
-    sessionStorage.setItem(SESSION, "1");
-    $("#password").value = "";
-    showView("main");
-    loadItems();
+    const err = $("#loginError");
+    err.hidden = true;
+    const btn = $("#loginForm button");
+    btn.disabled = true;
+    try {
+      const res = await api("login.php", { password: $("#password").value });
+      localStorage.setItem(TOKEN_KEY, res.token);
+      if (res.maxVideoMB) maxVideoMB = res.maxVideoMB;
+      $("#password").value = "";
+      showView("main");
+      loadItems();
+    } catch (ex) {
+      err.textContent = ex.message || "Nie udało się zalogować.";
+      err.hidden = false;
+    } finally {
+      btn.disabled = false;
+    }
   });
 
   $("#logout").addEventListener("click", () => {
-    sessionStorage.removeItem(SESSION);
+    localStorage.removeItem(TOKEN_KEY);
     showView("login");
   });
 
@@ -183,7 +245,6 @@
   let base = { items: [] };
   let drafts = [];
   let editingId = null;
-  const urls = new Map();   // ścieżka local/... -> adres blob: do podglądu
 
   const catOptions = (select, withAll) => {
     select.innerHTML = "";
@@ -219,78 +280,36 @@
     $("#progressText").textContent = text;
   };
 
-  // ścieżka do pokazania w panelu: plik z tego urządzenia albo ze strony
+  // ścieżka do pokazania w panelu: plik z serwera (media/...) albo ze strony (img/...)
   const mediaUrl = (path) => {
     if (!path) return "";
-    if (path.indexOf("local/") === 0) return urls.get(path) || "";
+    if (/^media\//.test(path)) return API + path;
     return "../" + path;
-  };
-
-  const cacheUrls = async (items) => {
-    for (const it of items) {
-      for (const key of ["src", "thumb", "poster"]) {
-        const p = it[key];
-        if (typeof p === "string" && p.indexOf("local/") === 0 && !urls.has(p)) {
-          const blob = await Store.getMedia(p);
-          if (blob) urls.set(p, URL.createObjectURL(blob));
-        }
-      }
-    }
   };
 
   const loadItems = async () => {
     $("#stats").textContent = "Wczytuję…";
-    if (!Store || !Store.supported()) {
-      notice("Ta przeglądarka nie pozwala zapisywać zdjęć (np. tryb prywatny). Otwórz panel w zwykłym oknie.", true);
-      return;
-    }
     try {
-      const local = await Store.loadData();
-      if (local) {
-        base = local;
-        await cacheUrls(base.items || []);
-      } else {
-        const res = await fetch("../data/realizacje.json", { cache: "no-cache" });
-        base = await res.json();
-      }
+      base = await api("realizacje.php");
       if (!Array.isArray(base.items)) base.items = [];
       renderAll();
     } catch (e) {
       $("#stats").textContent = "";
-      notice("Nie udało się wczytać realizacji. Odśwież stronę.", true);
+      if (!handleAuth(e)) notice(e.message || "Nie udało się wczytać realizacji. Odśwież stronę.", true);
     }
   };
 
-  // każda zmiana od razu trafia do pamięci urządzenia
-  const persist = async (next, message) => {
-    await Store.saveData(next);
-    base = next;
-    renderAll();
-    if (message) toast(message);
-  };
-
-  /* ---------- operacje na liście ---------- */
-  const applyOp = (data, op) => {
-    const items = (data.items || []).map((x) => Object.assign({}, x));
-    if (op.op === "add") {
-      items.unshift(...op.items);
-    } else if (op.op === "update") {
-      const it = items.find((x) => x.id === op.id);
-      if (it) Object.assign(it, op.fields);
-    } else if (op.op === "delete") {
-      const i = items.findIndex((x) => x.id === op.id);
-      if (i >= 0) items.splice(i, 1);
-    } else if (op.op === "move") {
-      const i = items.findIndex((x) => x.id === op.id);
-      if (i >= 0) {
-        const [it] = items.splice(i, 1);
-        let j = -1;
-        if (op.beforeId) j = items.findIndex((x) => x.id === op.beforeId);
-        else if (op.afterId) { j = items.findIndex((x) => x.id === op.afterId); if (j >= 0) j += 1; }
-        items.splice(j < 0 ? i : j, 0, it);
-      }
+  // każda zmiana od razu trafia na serwer; serwer zwraca aktualną listę
+  const save = async (ops, message) => {
+    try {
+      base = await api("zapisz.php", { ops });
+      renderAll();
+      if (message) toast(message);
+      return true;
+    } catch (e) {
+      if (!handleAuth(e)) notice(e.message || "Nie udało się zapisać. Spróbuj jeszcze raz.", true);
+      return false;
     }
-    return Object.assign({}, data, { updated: today(), items });
   };
 
   /* ---------- lista realizacji ---------- */
@@ -311,7 +330,7 @@
     const j = i + dir;
     if (i < 0 || j < 0 || j >= ids.length) return;
     const op = dir < 0 ? { op: "move", id, beforeId: ids[j] } : { op: "move", id, afterId: ids[j] };
-    await persist(applyOp(base, op));
+    if (!(await save([op]))) return;
     const moved = $(`.tile[data-id="${id}"]`);
     if (moved) {
       moved.classList.add("is-moved");
@@ -413,7 +432,7 @@
     if (to === "top" && i > 0) op = { op: "move", id: editingId, beforeId: ids[0] };
     if (to === "up" && i > 0) op = { op: "move", id: editingId, beforeId: ids[i - 1] };
     if (to === "down" && i < ids.length - 1) op = { op: "move", id: editingId, afterId: ids[i + 1] };
-    if (op) await persist(applyOp(base, op), "Kolejność zapisana");
+    if (op) await save([op], "Kolejność zapisana");
   }));
 
   $("#editForm").addEventListener("submit", async () => {
@@ -424,7 +443,7 @@
     if (title !== (it.title || "")) fields.title = title;
     if ($("#editCat").value !== it.cat) fields.cat = $("#editCat").value;
     if ($("#editFeatured").checked !== Boolean(it.featured)) fields.featured = $("#editFeatured").checked;
-    if (Object.keys(fields).length) await persist(applyOp(base, { op: "update", id: editingId, fields }), "Zapisano");
+    if (Object.keys(fields).length) await save([{ op: "update", id: editingId, fields }], "Zapisano");
   });
 
   $("#editDelete").addEventListener("click", async () => {
@@ -432,25 +451,12 @@
     const it = base.items.find((x) => x.id === editingId);
     sheet.close();
     if (!it) return;
-    const own = [it.src, it.thumb, it.poster].filter((p) => typeof p === "string" && p.indexOf("local/") === 0);
-    await persist(applyOp(base, { op: "delete", id: editingId }), "Usunięto");
-    await Store.deleteMedia(own);
-    own.forEach((p) => { if (urls.has(p)) { URL.revokeObjectURL(urls.get(p)); urls.delete(p); } });
+    await save([{ op: "delete", id: editingId }], "Usunięto");   // serwer usuwa też pliki
   });
 
   sheet.addEventListener("close", () => {
     const v = $("video", sheet);
     if (v) v.pause();
-  });
-
-  $("#resetDemo").addEventListener("click", async () => {
-    if (!confirm("Przywrócić galerię do stanu początkowego? Dodane zdjęcia i zmiany zostaną usunięte.")) return;
-    await Store.reset();
-    urls.forEach((u) => URL.revokeObjectURL(u));
-    urls.clear();
-    notice("");
-    await loadItems();
-    toast("Przywrócono galerię");
   });
 
   /* ---------- nowe pliki ---------- */
@@ -531,8 +537,8 @@
         : (file.type.startsWith("image/") || /\.(heic|heif|jpe?g|png|webp)$/i.test(file.name)) ? "image" : null;
       if (!kind) return;
       const d = { file, kind, url: URL.createObjectURL(file), cat: $("#bulkCat").value, title: "", featured: false, error: "" };
-      if (kind === "video" && file.size > CFG.maxVideoMB * 1048576) {
-        d.error = `Film ma ${mb(file.size)} MB, a limit to ${CFG.maxVideoMB} MB. Przytnij go albo nagraj krótszy.`;
+      if (kind === "video" && file.size > maxVideoMB * 1048576) {
+        d.error = `Film ma ${mb(file.size)} MB, a limit to ${maxVideoMB} MB. Przytnij go albo nagraj krótszy.`;
       }
       drafts.push(d);
     });
@@ -554,56 +560,46 @@
     $("#addLabel").style.pointerEvents = "none";
     notice("");
     const items = [];
-    const saved = [];
     try {
       for (let k = 0; k < todo.length; k++) {
         const d = todo[k];
         const no = `${k + 1} z ${todo.length}`;
         const id = newId();
         const title = d.title.trim();
-        setProgress(k / todo.length, d.kind === "image" ? `Przygotowuję zdjęcie ${no}…` : `Przygotowuję film ${no}…`);
+        const step = (part, text) => setProgress((k + part) / todo.length, text);
         if (d.kind === "image") {
+          step(0, `Przygotowuję zdjęcie ${no}…`);
           let img;
           try { img = await processImage(d.file); }
           catch (e) { throw Object.assign(new Error("decode"), { decode: true, name: d.file.name }); }
-          const full = `local/${id}.${IMG_EXT}`;
-          const thumb = `local/${id}-m.${IMG_EXT}`;
-          await Store.putMedia(full, img.full);
-          await Store.putMedia(thumb, img.thumb);
-          saved.push(full, thumb);
-          urls.set(full, URL.createObjectURL(img.full));
-          urls.set(thumb, URL.createObjectURL(img.thumb));
+          const full = await uploadFile(img.full, `${id}.${IMG_EXT}`, "image", (p) => step(.1 + p * .7, `Wysyłam zdjęcie ${no}…`));
+          const thumb = await uploadFile(img.thumb, `${id}-m.${IMG_EXT}`, "image", (p) => step(.8 + p * .2, `Wysyłam zdjęcie ${no}…`));
           items.push({
             id, type: "image", cat: d.cat, title, src: full, thumb,
             w: img.w, h: img.h, tw: img.tw, th: img.th, color: img.color,
             featured: d.featured, date: today(), bytes: img.full.size + img.thumb.size
           });
         } else {
+          step(0, `Przygotowuję film ${no}…`);
           const meta = await processVideo(d.file);
-          const ext = videoExt(d.file);
-          const vPath = `local/${id}.${ext}`;
-          await Store.putMedia(vPath, d.file);
-          saved.push(vPath);
-          urls.set(vPath, d.url);
+          const vPath = await uploadFile(d.file, `${id}.${videoExt(d.file)}`, "video",
+            (p) => step(.05 + p * .9, `Wysyłam film ${no} (${mb(d.file.size)} MB): ${Math.round(p * 100)}%`));
           const item = {
             id, type: "video", cat: d.cat, title, src: vPath,
             w: meta.w, h: meta.h, color: meta.color, duration: meta.duration,
             featured: d.featured, date: today(), bytes: d.file.size
           };
           if (meta.poster) {
-            const pPath = `local/${id}-poster.${IMG_EXT}`;
-            await Store.putMedia(pPath, meta.poster);
-            saved.push(pPath);
-            urls.set(pPath, URL.createObjectURL(meta.poster));
-            item.poster = pPath;
+            item.poster = await uploadFile(meta.poster, `${id}-poster.${IMG_EXT}`, "image");
             item.bytes += meta.poster.size;
           }
           items.push(item);
         }
       }
       setProgress(1, "Zapisuję…");
-      await persist(applyOp(base, { op: "add", items }));
-      drafts.forEach((d) => { if (d.kind === "image") URL.revokeObjectURL(d.url); });
+      base = await api("zapisz.php", { ops: [{ op: "add", items }] });
+      renderAll();
+      drafts.forEach((d) => URL.revokeObjectURL(d.url));
       drafts = drafts.filter((d) => d.error);
       setProgress(null);
       const imgs = items.filter((i) => i.type === "image").length;
@@ -613,10 +609,9 @@
       renderDrafts();
     } catch (e) {
       setProgress(null);
-      await Store.deleteMedia(saved).catch(() => {});
+      if (handleAuth(e)) return;
       if (e.decode) notice(`Nie udało się odczytać zdjęcia ${e.name}. Jeśli to zdjęcie w formacie HEIC, wybierz je jeszcze raz albo zapisz jako JPG.`, true);
-      else if (e && e.name === "QuotaExceededError") notice("Na tym urządzeniu zabrakło miejsca na zdjęcia. Usuń część realizacji i spróbuj jeszcze raz.", true);
-      else notice("Nie udało się zapisać. Spróbuj jeszcze raz.", true);
+      else notice(e.message || "Nie udało się zapisać. Spróbuj jeszcze raz.", true);
     } finally {
       $("#publish").disabled = false;
       $("#addLabel").style.pointerEvents = "";
@@ -628,6 +623,7 @@
   });
 
   /* ---------- start ---------- */
-  if (sessionStorage.getItem(SESSION) === "1") { showView("main"); loadItems(); }
+  if (!API) notice("Brak adresu serwera w js/config.js.", true);
+  if (getToken()) { showView("main"); loadItems(); }
   else showView("login");
 })();

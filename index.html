@@ -6,6 +6,7 @@
   <title>Meble Grosman | Meble na wymiar, Pszów</title>
   <meta name="description" content="Meble Grosman z Pszowa: kuchnie, szafy, zabudowy przedpokoi, meble łazienkowe, salonowe i biurowe robione na wymiar. Pomiar, projekt, produkcja i montaż. Tel. 502 307 043.">
   <meta name="theme-color" content="#F2F1EE">
+  <link rel="canonical" href="https://meblegrosman.pl/">
   <link rel="icon" type="image/png" href="img/favicon.png">
   <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="512x512" href="img/icon-512.png">
@@ -13,7 +14,8 @@
   <meta property="og:type" content="website">
   <meta property="og:title" content="Meble Grosman | Meble na wymiar, Pszów">
   <meta property="og:description" content="Kuchnie, szafy i zabudowy robione na wymiar w Pszowie. Zobacz nasze realizacje.">
-  <meta property="og:image" content="img/kuchnia-grafit-dab.webp">
+  <meta property="og:image" content="https://meblegrosman.pl/img/kuchnia-grafit-dab.webp">
+  <meta property="og:url" content="https://meblegrosman.pl/">
   <meta property="og:locale" content="pl_PL">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -30,8 +32,9 @@
     "description": "Producent mebli na wymiar: kuchnie, szafy, zabudowy, meble łazienkowe i biurowe.",
     "telephone": "+48502307043",
     "email": "sklepgrosman@gmail.com",
-    "image": "img/kuchnia-grafit-dab.webp",
-    "logo": "img/logo-full.png",
+    "url": "https://meblegrosman.pl/",
+    "image": "https://meblegrosman.pl/img/kuchnia-grafit-dab.webp",
+    "logo": "https://meblegrosman.pl/img/logo-full.png",
     "address": {
       "@type": "PostalAddress",
       "streetAddress": "Władysława Andersa 6",
@@ -44,7 +47,7 @@
       {"@type": "OpeningHoursSpecification", "dayOfWeek": "Saturday", "opens": "09:00", "closes": "13:00"}
     ],
     "aggregateRating": {"@type": "AggregateRating", "ratingValue": "4.7", "reviewCount": "24"},
-    "sameAs": ["https://www.facebook.com/meblegrosman"]
+    "sameAs": ["https://www.facebook.com/meblegrosman", "https://www.instagram.com/meblenawymiar_dombezchemii/"]
   }
   </script>
 </head>
@@ -518,7 +521,7 @@
             <div class="reach__card">
               <h3>E-mail</h3>
               <a class="reach__value reach__value--mail" href="mailto:sklepgrosman@gmail.com">sklepgrosman@<wbr>gmail.com</a>
-              <p class="reach__note">Opisz, czego potrzebujesz. Możesz od razu dołączyć zdjęcia i wymiary pomieszczenia.</p>
+              <p class="reach__note">Opisz, czego potrzebujesz, a odpowiemy e-mailem albo oddzwonimy. Zdjęcia pomieszczenia możesz wysłać na ten adres.</p>
               <div class="reach__actions">
                 <a class="btn" id="mailBtn" href="mailto:sklepgrosman@gmail.com?subject=Zapytanie%20ze%20strony%20meblegrosman.pl&amp;body=Dzie%C5%84%20dobry%2C%0D%0A%0D%0Ainteresuj%C4%85%20mnie%20meble%20na%20wymiar%3A%20%0D%0A%0D%0APomieszczenie%20i%20przybli%C5%BCone%20wymiary%3A%20%0D%0AMiejscowo%C5%9B%C4%87%3A%20%0D%0ATelefon%20kontaktowy%3A%20%0D%0A%0D%0APozdrawiam">Napisz do nas</a>
                 <button class="btn btn--ghost btn--small" id="copyMail" type="button" data-email="sklepgrosman@gmail.com">Skopiuj adres</button>
@@ -573,6 +576,41 @@
 
   <a class="callbar" href="tel:+48502307043">Zadzwoń: 502 307 043</a>
 
+  <dialog class="modal" id="contactDialog" aria-labelledby="contactTitle">
+    <form class="modal__inner" id="contactForm" novalidate>
+      <button class="modal__close" id="contactClose" type="button" aria-label="Zamknij">
+        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+      </button>
+      <h2 id="contactTitle">Napisz do nas</h2>
+      <p class="modal__lead">Opisz, czego potrzebujesz. Odpowiemy e-mailem albo oddzwonimy.</p>
+      <div class="field-row">
+        <label class="field"><span>Imię</span><input name="name" type="text" autocomplete="name" maxlength="100"></label>
+        <label class="field"><span>Telefon</span><input name="phone" type="tel" autocomplete="tel" maxlength="30"></label>
+      </div>
+      <label class="field"><span>E-mail</span><input name="email" type="email" autocomplete="email" maxlength="120"></label>
+      <label class="field"><span>Czego dotyczy?</span>
+        <select name="topic">
+          <option>Kuchnia</option>
+          <option>Szafa lub garderoba</option>
+          <option>Przedpokój</option>
+          <option>Łazienka</option>
+          <option>Salon</option>
+          <option>Inne</option>
+        </select>
+      </label>
+      <label class="field"><span>Wiadomość</span><textarea name="message" rows="5" maxlength="4000" placeholder="np. kuchnia w kształcie L, ściana ok. 3 m, Rybnik"></textarea></label>
+      <input class="hp" name="website" type="text" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <p class="modal__note">Podaj e-mail lub telefon, żebyśmy mogli odpowiedzieć. Dane wykorzystamy wyłącznie do odpowiedzi na to zapytanie.</p>
+      <p class="form-error" id="contactError" role="alert" hidden></p>
+      <button class="btn btn--block" id="contactSend" type="submit">Wyślij wiadomość</button>
+    </form>
+    <div class="modal__inner modal__done" id="contactDone" hidden>
+      <h2>Dziękujemy!</h2>
+      <p class="modal__lead">Wiadomość do nas dotarła. Odezwiemy się najszybciej, jak to możliwe.</p>
+      <button class="btn" id="contactOk" type="button">Zamknij</button>
+    </div>
+  </dialog>
+
   <dialog class="lightbox" id="lightbox" aria-label="Podgląd zdjęcia">
     <button class="lightbox__close" id="lbClose" aria-label="Zamknij podgląd">
       <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
@@ -593,7 +631,7 @@
     </button>
   </dialog>
 
-  <script src="js/demo-store.js" defer></script>
+  <script src="js/config.js" defer></script>
   <script src="js/main.js" defer></script>
 </body>
 </html>

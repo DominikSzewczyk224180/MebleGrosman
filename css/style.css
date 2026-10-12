@@ -1305,6 +1305,65 @@ a.fbpost__media { cursor: pointer; }
 }
 .callbar.is-visible { transform: none; }
 
+/* ---------- Formularz kontaktowy ---------- */
+.modal {
+  width: min(560px, calc(100% - 24px));
+  max-height: calc(100dvh - 24px);
+  padding: 0;
+  border: 0;
+  border-radius: 18px;
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: 0 40px 80px -30px rgba(20, 18, 16, .6);
+}
+.modal::backdrop { background: rgba(24, 22, 20, .6); }
+.modal__inner {
+  position: relative;
+  display: grid;
+  gap: .9rem;
+  padding: clamp(1.4rem, 4vw, 2.2rem);
+}
+.modal__inner h2 { font-size: clamp(1.7rem, 4vw, 2.2rem); padding-right: 2.5rem; }
+.modal__lead { color: var(--muted); }
+.modal__close {
+  position: absolute;
+  top: .8rem;
+  right: .8rem;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--graphite);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+.modal__close:hover { background: var(--stone); }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: .9rem; }
+.field { display: grid; gap: .35rem; font-weight: 600; color: var(--graphite); font-size: .95rem; }
+.field input, .field select, .field textarea {
+  width: 100%;
+  min-height: 48px;
+  padding: .7rem .9rem;
+  border: 1.5px solid var(--stone-2);
+  border-radius: 12px;
+  background: #fff;
+  color: var(--ink);
+  font: 400 16px/1.45 var(--f-body);
+}
+.field textarea { resize: vertical; min-height: 120px; }
+.field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: var(--graphite); }
+.hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+.modal__note { color: var(--muted); font-size: .88rem; line-height: 1.5; }
+.form-error { color: #9C2B1F; font-weight: 600; }
+.form-error a { color: inherit; }
+.btn--block { width: 100%; }
+.btn:disabled { opacity: .6; cursor: default; }
+.modal__done { justify-items: start; }
+.modal__inner[hidden] { display: none; }
+@media (max-width: 480px) { .field-row { grid-template-columns: 1fr; } }
+
 /* ---------- Lightbox ---------- */
 .lightbox {
   border: 0;
