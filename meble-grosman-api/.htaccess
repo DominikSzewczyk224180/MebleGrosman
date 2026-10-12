@@ -1,0 +1,10 @@
+Options -Indexes
+DirectoryIndex status.php
+
+# config.php i lib.php są tylko do użytku przez PHP, nie z przeglądarki
+<FilesMatch "^(config|lib)\.php$">
+  Require all denied
+</FilesMatch>
+<FilesMatch "^\.">
+  Require all denied
+</FilesMatch>

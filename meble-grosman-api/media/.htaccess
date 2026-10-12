@@ -1,0 +1,8 @@
+Options -Indexes
+# w media/ są tylko zdjęcia i filmy: żadnych skryptów
+<FilesMatch "\.(php|phtml|phar|pl|py|cgi|sh|htaccess)$">
+  Require all denied
+</FilesMatch>
+<IfModule mod_headers.c>
+  Header set Cache-Control "public, max-age=31536000, immutable"
+</IfModule>
